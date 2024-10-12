@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "asst.h"
+#include "asst/asst.h"
 
 int main()
 {
