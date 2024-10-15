@@ -49,17 +49,17 @@ cmake_ninja_workdir = /home/ahmad/Documents/Academia/Fall$ 2024-2025/CMPS$ 270/P
 
 build cmake_object_order_depends_target_Project: phony || .
 
-build CMakeFiles/Project.dir/main.c.o: C_COMPILER__Project_unscanned_Debug /home/ahmad/Documents/Academia/Fall$ 2024-2025/CMPS$ 270/Project/main.c || cmake_object_order_depends_target_Project
-  DEP_FILE = CMakeFiles/Project.dir/main.c.o.d
+build CMakeFiles/Project.dir/src/main.c.o: C_COMPILER__Project_unscanned_Debug /home/ahmad/Documents/Academia/Fall$ 2024-2025/CMPS$ 270/Project/src/main.c || cmake_object_order_depends_target_Project
+  DEP_FILE = CMakeFiles/Project.dir/src/main.c.o.d
   FLAGS = -g -std=gnu2x -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/Project.dir
-  OBJECT_FILE_DIR = CMakeFiles/Project.dir
+  OBJECT_FILE_DIR = CMakeFiles/Project.dir/src
 
-build CMakeFiles/Project.dir/asst.c.o: C_COMPILER__Project_unscanned_Debug /home/ahmad/Documents/Academia/Fall$ 2024-2025/CMPS$ 270/Project/asst.c || cmake_object_order_depends_target_Project
-  DEP_FILE = CMakeFiles/Project.dir/asst.c.o.d
+build CMakeFiles/Project.dir/src/asst/asst.c.o: C_COMPILER__Project_unscanned_Debug /home/ahmad/Documents/Academia/Fall$ 2024-2025/CMPS$ 270/Project/src/asst/asst.c || cmake_object_order_depends_target_Project
+  DEP_FILE = CMakeFiles/Project.dir/src/asst/asst.c.o.d
   FLAGS = -g -std=gnu2x -fdiagnostics-color=always
   OBJECT_DIR = CMakeFiles/Project.dir
-  OBJECT_FILE_DIR = CMakeFiles/Project.dir
+  OBJECT_FILE_DIR = CMakeFiles/Project.dir/src/asst
 
 
 # =============================================================================
@@ -69,7 +69,7 @@ build CMakeFiles/Project.dir/asst.c.o: C_COMPILER__Project_unscanned_Debug /home
 #############################################
 # Link the executable Project
 
-build Project: C_EXECUTABLE_LINKER__Project_Debug CMakeFiles/Project.dir/main.c.o CMakeFiles/Project.dir/asst.c.o
+build Project: C_EXECUTABLE_LINKER__Project_Debug CMakeFiles/Project.dir/src/main.c.o CMakeFiles/Project.dir/src/asst/asst.c.o
   FLAGS = -g
   LINK_LIBRARIES = -lm
   OBJECT_DIR = CMakeFiles/Project.dir
