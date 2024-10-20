@@ -32,4 +32,8 @@ int** initialize_grid();
 
 Player* initialize_player();
 
+int column(char square[3]);
+
+int row(char sqaure[3]);
+
 #endif //ASST_H
