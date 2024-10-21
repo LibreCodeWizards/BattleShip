@@ -2,14 +2,48 @@
 // Created by ahmad on 10/12/24.
 //
 #include <stdlib.h>
+#include <stdio.h>
 #include "asst.h"
 
-void print_grid(int** grid)
+void print_grid(int **grid, int difficulty)
 {
-    //prints the grid
+    for (size_t i = 0; i < GRID_SIZE; i++)
+    {
+        printf("%c\t", 'A' + i);
+    }
+
+    printf("\n");
+
+    for (size_t i = 0; i < GRID_SIZE; i++)
+    {
+        printf("%d\t", i + 1);
+        for (size_t j = 0; j < GRID_SIZE; j++)
+        {
+            if (grid[i][j] < -1)
+            {
+                printf("*\t");
+            }
+            else if (grid[i][j] == -1)
+            {
+                if (difficulty == 0)
+                {
+                    printf("o\t");
+                }
+                else
+                {
+                    printf("~\t");
+                }
+            }
+            else
+            {
+                printf("~\t");
+            }
+        }
+        printf("\n");
+    }
 }
 
-int update_torpedo(Player* attacker, Player* defender, int is_sunk)
+int update_torpedo(Player *attacker, Player *defender, int is_sunk)
 {
     attacker->torpedo = 0;
 
@@ -29,30 +63,50 @@ int update_torpedo(Player* attacker, Player* defender, int is_sunk)
     return 0;
 }
 
-int is_sunk(Player* p, int ship_number)
+int is_sunk(Player *p, int ship_number)
 {
-    // returns 1 if i-th ship of the player is sunk i.e shipHP= 0
-    // otherwise 0
+    // Thing hit is not a ship
+    if (ship_number < 0)
+    {
+        return 0;
+    }
+    // NOTE: this considers that the first ship on the grid will be 1, the second 2...
+    // If we want to have the ships represented by their size, i.e. ship 1 represented by 2 and so on...
+    // we would need to change the -1 to -2
+    return p->ships[ship_number - 1] == 0;
 }
 
-int fire(Player* p, int x, int y)
+int fire(Player *attacker, Player *defender, int x, int y)
 {
     // Checks if a grid at this index contains a ship
     // Decrements the ship HP
     // Returns the number at the grid[x][y]
-    return 1;
+    int item_hit = defender->grid[x][y];
+    if (item_hit > 0)
+    {
+        // NOTE: this considers that the first ship on the grid will be 1, the second 2...
+        // If we want to have the ships represented by their size, i.e. ship 1 represented by 2 and so on...
+        // we would need to change the -1 to -2
+        defender->ships[item_hit - 1]--;
+    }
+    if (is_sunk(defender, item_hit) == 1)
+    {
+        attacker->smoke_screen += 1;
+    }
+    return item_hit;
 }
 
-int artillery(Player* attacker, Player* defender, const int x, const int y)
+int artillery(Player *attacker, Player *defender, const int x, const int y)
 {
+    // Maintain booleans to ensure that player gets his abilities if any ship is sunk
     int got_artillery = 0;
     int got_torpedo = 0;
     int got_hit = 0;
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
-        for (int j = y; j < min(GRID_SIZE, y+2); ++j)
+        for (int j = y; j < min(GRID_SIZE, y + 2); ++j)
         {
-            int ship_hit = fire(defender, i, j);
+            int ship_hit = fire(attacker, defender, i, j);
             if (ship_hit > 0)
             {
                 got_hit = 1;
@@ -74,33 +128,70 @@ int artillery(Player* attacker, Player* defender, const int x, const int y)
     return got_hit;
 }
 
-int torpedo(Player* attacker, Player* defender, const int x, const int y, int oreintation)
+int torpedo(Player *attacker, Player *defender, const int pos, int oreintation)
 {
-    //TODO
+    // orientation 0 for row, 1 for col
+
+    int hit = 0;
+    for (size_t i = 0; i < GRID_SIZE; i++)
+    {
+        int square_hit;
+        if (oreintation == 0)
+        {
+            int square_hit = fire(attacker, defender, pos, i);
+            // Can tell the user if he sunk a ship later using the is_sunk function if we need to
+        }
+        else
+        {
+            int square_hit = fire(attacker, defender, i, pos);
+        }
+
+        if (square_hit > 0)
+        {
+            hit = 1;
+        }
+    }
+
+    return hit;
 }
 
+int radar_sweep(Player *defender, int x, int y)
+{
+    for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
+    {
+        for (int j = y; j < min(GRID_SIZE, y + 2); ++j)
+        {
+            if (defender->grid[i][j] > 0)
+            {
+                return 1;
+            }
+        }
+    }
+
+    return 0;
+}
 
 // Initializes a 2D matrix
-int** initialize_grid()
+int **initialize_grid()
 {
     // First dimension have 10 pointers.
-    int** grid = (int**)calloc(GRID_SIZE, sizeof(int*));
+    int **grid = (int **)calloc(GRID_SIZE, sizeof(int *));
 
     for (int i = 0; i < GRID_SIZE; i++)
     {
         // Second dimension have 10 elements.
-        grid[i] = (int*)calloc(GRID_SIZE, sizeof(int));
+        grid[i] = (int *)calloc(GRID_SIZE, sizeof(int));
     }
 
     return grid;
 }
 
-Player* initialize_player()
+Player *initialize_player()
 {
-    Player* p = (Player*)malloc(sizeof(Player));
+    Player *p = (Player *)malloc(sizeof(Player));
 
     // Setting HP for each ship
-    p->ships = (int*)calloc(NUM_SHIPS, sizeof(int));
+    p->ships = (int *)calloc(NUM_SHIPS, sizeof(int));
     for (int i = 0; i < NUM_SHIPS; ++i)
     {
         p->ships[i] = i + 2;

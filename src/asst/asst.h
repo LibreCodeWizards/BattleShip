@@ -10,27 +10,29 @@
 
 typedef struct
 {
-    int* ships;
+    int *ships;
     int radar_sweep;
     int smoke_screen;
     int artillery;
     int torpedo;
-    int** grid;
+    int **grid;
 } Player;
 
-void print_grid(int** grid);
+void print_grid(int **grid, int difficulty);
 
-int update_torpedo(Player* attacker, Player* defender, int is_sunk);
+int update_torpedo(Player *attacker, Player *defender, int is_sunk);
 
-int is_sunk(Player* p, int ship_number);
+int is_sunk(Player *p, int ship_number);
 
-int fire(Player* p, int x, int y);
+int fire(Player *attacker, Player *defender, int x, int y);
 
-int artillery(Player* attacker, Player* defender, int x, int y);
+int artillery(Player *attacker, Player *defender, int x, int y);
 
-int** initialize_grid();
+int radar_sweep(Player *defender, int x, int y);
 
-Player* initialize_player();
+int **initialize_grid();
+
+Player *initialize_player();
 
 int column(char square[3]);
 
