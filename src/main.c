@@ -3,11 +3,11 @@
 
 int main()
 {
-    Player* p1;
+    Player *p1;
     for (int i = 0; i < 80; ++i)
     {
         p1 = initialize_player();
     }
-    printf("%d", p1->ships.ship4);
+    printf("%d", p1->ships[3]);
     return 0;
 }
