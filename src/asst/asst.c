@@ -207,3 +207,14 @@ Player *initialize_player()
 
     return p;
 }
+
+// turns square input into coordinates on the grid
+int column(char square[3])
+{
+    return square[0]-'A';
+}
+
+int row(char square[3])
+{
+    return square[1]-'1';
+}
