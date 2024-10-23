@@ -39,11 +39,11 @@ int is_game_over(Player *defender);
 
 int **initialize_grid();
 
-int get_column(char square[3]);
+int get_column(char square[4]);
 
-int get_row(char square[3]);
+int get_row(char square[4]);
 
-int is_valid_square(char square[3]);
+int is_valid_square(char square[4]);
 
 int get_orientation(char orientation[11]);
 
