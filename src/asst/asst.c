@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include "asst.h"
 
-void print_grid(int **grid, int difficulty)
+void print_grid(Player *attacker, Player *defender, int difficulty)
 {
     for (size_t i = 0; i < GRID_SIZE; i++)
     {
@@ -19,11 +19,20 @@ void print_grid(int **grid, int difficulty)
         printf("%d\t", i + 1);
         for (size_t j = 0; j < GRID_SIZE; j++)
         {
-            if (grid[i][j] < -1)
+            if (defender->grid[i][j] < -1)
             {
-                printf("*\t");
+                int ship_number = abs(defender->grid[i][j]);
+
+                if (defender->ships[ship_number - 2] == 0)
+                {
+                    printf("%d\t", ship_number);
+                }
+                else
+                {
+                    printf("*\t");
+                }
             }
-            else if (grid[i][j] == -1)
+            else if (defender->grid[i][j] == -1)
             {
                 if (difficulty == 0)
                 {
@@ -73,7 +82,7 @@ int is_sunk(Player *p, int ship_number)
     // NOTE: this considers that the first ship on the grid will be 1, the second 2...
     // If we want to have the ships represented by their size, i.e. ship 1 represented by 2 and so on...
     // we would need to change the -1 to -2
-    return p->ships[ship_number - 1] == 0;
+    return p->ships[ship_number - 2] == 0;
 }
 
 int fire(Player *attacker, Player *defender, int x, int y)
@@ -87,7 +96,8 @@ int fire(Player *attacker, Player *defender, int x, int y)
         // NOTE: this considers that the first ship on the grid will be 1, the second 2...
         // If we want to have the ships represented by their size, i.e. ship 1 represented by 2 and so on...
         // we would need to change the -1 to -2
-        defender->ships[item_hit - 1]--;
+        defender->ships[item_hit - 2]--;
+        defender->grid[x][y] *= -1;
     }
     if (is_sunk(defender, item_hit) == 1)
     {
@@ -161,7 +171,7 @@ int radar_sweep(Player *defender, int x, int y)
     {
         for (int j = y; j < min(GRID_SIZE, y + 2); ++j)
         {
-            if (defender->grid[i][j] > 0)
+            if (defender->grid[i][j] > 0 && defender->visible_grid[i][j] > 0)
             {
                 return 1;
             }
@@ -169,6 +179,71 @@ int radar_sweep(Player *defender, int x, int y)
     }
 
     return 0;
+}
+
+void smoke_screen(Player *p, int x, int y)
+{
+    for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
+    {
+        for (int j = y; j < min(GRID_SIZE, y + 2); ++j)
+        {
+            p->visible_grid[i][j] = 0;
+        }
+    }
+}
+
+int add_ship(Player *p, int x, int y, int ship_size, int orientation)
+{
+    // making sure ships fit in this orientation (0 for ho)izontal, 1 for vertical)
+    if ((orientation == 0 && x + ship_size > GRID_SIZE) || (orientation == 1 && y + ship_size > GRID_SIZE))
+        return 0;
+
+    // making sure this orientation doesnt overlap with existing ship
+    for (size_t i = 0; i < ship_size; i++)
+    {
+        if (orientation == 0)
+        {
+            if (p->grid[x][y + i] > 0)
+            {
+                return 0;
+            }
+        }
+        else
+        {
+            if (p->grid[x + i][y] > 0)
+            {
+                return 0;
+            }
+        }
+    }
+
+    // No overlap or out of bound, so we can place
+    for (size_t i = 0; i < ship_size; i++)
+    {
+        if (orientation == 0)
+        {
+            p->grid[x][y + i] = ship_size;
+        }
+        else
+        {
+            p->grid[x + i][y] = ship_size;
+        }
+    }
+
+    return 1;
+}
+
+int is_game_over(Player *defender)
+{
+    for (size_t i = 0; i < NUM_SHIPS; i++)
+    {
+        if (defender->ships[i] > 0)
+        {
+            return 0;
+        }
+    }
+
+    return 1;
 }
 
 // Initializes a 2D matrix
@@ -204,17 +279,23 @@ Player *initialize_player()
     p->torpedo = 0;
 
     p->grid = initialize_grid();
+    p->visible_grid = initialize_grid();
 
     return p;
 }
 
-// turns square input into coordinates on the grid
-int column(char square[3])
+// turns square input into coorinates on the grid
+int get_column(char square[4])
 {
-    return square[0]-'A';
+    return square[0] - 'A';
 }
 
-int row(char square[3])
+int get_row(char square[4])
 {
-    return square[1]-'1';
+    return square[1] != '1' ? square[1] - '1' : (square[2] == '0' ? 9 : 0);
+}
+
+int is_valid_square(char square[4])
+{
+    return 'A' <= square[0] & 'J' >= square[0] & '1' <= square[1] & '9' >= square[1] & (square[1] != '1' || (square[2] == '0' || square[2] == '\0'));
 }

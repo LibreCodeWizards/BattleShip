@@ -16,9 +16,10 @@ typedef struct
     int artillery;
     int torpedo;
     int **grid;
+    int **visible_grid;
 } Player;
 
-void print_grid(int **grid, int difficulty);
+void print_grid(Player *attacker, Player *defender, int difficulty);
 
 int update_torpedo(Player *attacker, Player *defender, int is_sunk);
 
@@ -30,12 +31,18 @@ int artillery(Player *attacker, Player *defender, int x, int y);
 
 int radar_sweep(Player *defender, int x, int y);
 
+int add_ship(Player *p, int x, int y, int ship_size, int orientation);
+
+int is_game_over(Player *defender);
+
 int **initialize_grid();
+
+int get_column(char square[3]);
+
+int get_row(char square[3]);
+
+int is_valid_square(char square[3]);
 
 Player *initialize_player();
 
-int column(char square[3]);
-
-int row(char sqaure[3]);
-
-#endif //ASST_H
+#endif // ASST_H
