@@ -3,11 +3,13 @@
 
 int main()
 {
-    Player *player[2] = {initialize_player(), initialize_player()};
-    char *ship_name[4] = {"Submarine",
-                          "Destroyer",
-                          "Battleship",
-                          "Carrier"};
+    Player* player[2] = {initialize_player(), initialize_player()};
+    char* ship_name[4] = {
+        "Submarine",
+        "Destroyer",
+        "Battleship",
+        "Carrier"
+    };
 
     int exit = 0;
     int current_player = 0;
@@ -30,7 +32,7 @@ int main()
         if (p == 0)
             printf("Attacker player, please configure your ships\n");
         else
-            printf("Defender player, please confugure your ships\n");
+            printf("Defender player, please configure your ships\n");
         // prints the empty grid
         print_configuration(player[1]);
 

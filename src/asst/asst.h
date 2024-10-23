@@ -10,34 +10,34 @@
 
 typedef struct
 {
-    int *ships;
+    int* ships;
     int radar_sweep;
     int smoke_screen;
     int artillery;
     int torpedo;
-    int **grid;
-    int **visible_grid;
+    int** grid;
+    int** visible_grid;
 } Player;
 
-void print_configuration(Player *p);
+void print_configuration(Player* p);
 
-void print_grid(Player *attacker, Player *defender, int difficulty);
+void print_grid(Player* attacker, Player* defender, int difficulty);
 
-int update_torpedo(Player *attacker, Player *defender, int is_sunk);
+int update_torpedo(Player* attacker, Player* defender, int is_sunk);
 
-int is_sunk(Player *p, int ship_number);
+int is_sunk(Player* p, int ship_number);
 
-int fire(Player *attacker, Player *defender, int x, int y);
+int fire(Player* attacker, Player* defender, int x, int y);
 
-int artillery(Player *attacker, Player *defender, int x, int y);
+int artillery(Player* attacker, Player* defender, int x, int y);
 
-int radar_sweep(Player *defender, int x, int y);
+int radar_sweep(Player* defender, int x, int y);
 
-int add_ship(Player *p, int x, int y, int ship_size, int orientation);
+int add_ship(Player* p, int x, int y, int ship_size, int orientation);
 
-int is_game_over(Player *defender);
+int is_game_over(Player* defender);
 
-int **initialize_grid();
+int** initialize_grid();
 
 int get_column(char square[4]);
 
@@ -49,6 +49,6 @@ int get_orientation(char orientation[11]);
 
 void clear_screen();
 
-Player *initialize_player();
+Player* initialize_player();
 
 #endif // ASST_H

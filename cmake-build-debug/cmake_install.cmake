@@ -1,4 +1,4 @@
-# Install script for directory: /home/ahmad/Documents/Academia/Fall 2024-2025/CMPS 270/Project
+# Install script for directory: /home/ahmad/Documents/Academia/Fall 2024-2025/CMPS 270/BattleShip
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -50,5 +50,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ahmad/Documents/Academia/Fall 2024-2025/CMPS 270/Project/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/ahmad/Documents/Academia/Fall 2024-2025/CMPS 270/BattleShip/cmake-build-debug/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
