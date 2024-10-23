@@ -5,6 +5,33 @@
 #include <stdio.h>
 #include "asst.h"
 
+void clear_screen()
+{
+    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+}
+
+void print_configuration(Player *p)
+{
+    for (size_t i = 0; i < GRID_SIZE; i++)
+    {
+        printf("%c\t", 'A' + i);
+    }
+
+    printf("\n");
+    for (size_t i = 0; i < GRID_SIZE; i++)
+    {
+        printf("%d\t", i + 1);
+        for (size_t j = 0; j < GRID_SIZE; j++)
+        {
+            if (p->grid[i][j] > 0)
+                printf("%i\t", p->grid[i][j]);
+            else
+                printf("~\t");
+        }
+        printf("\n");
+    }
+}
+
 void print_grid(Player *attacker, Player *defender, int difficulty)
 {
     for (size_t i = 0; i < GRID_SIZE; i++)
@@ -223,10 +250,16 @@ int add_ship(Player *p, int x, int y, int ship_size, int orientation)
         if (orientation == 0)
         {
             p->grid[x][y + i] = ship_size;
+
+            // Also add the ship to the visible grid
+            p->visible_grid[x][y + i] = 1;
         }
         else
         {
             p->grid[x + i][y] = ship_size;
+
+            // Also add the ship to the visible grid
+            p->visible_grid[x + i][y] = 1;
         }
     }
 
@@ -298,4 +331,24 @@ int get_row(char square[4])
 int is_valid_square(char square[4])
 {
     return 'A' <= square[0] & 'J' >= square[0] & '1' <= square[1] & '9' >= square[1] & (square[1] != '1' || (square[2] == '0' || square[2] == '\0'));
+}
+
+int get_orientation(char orientation[11])
+{
+    char *v = "vertical";
+    char *h = "horizontal";
+
+    int isV = 1;
+    for (int i = 0; i < 8; ++i)
+    {
+        if (orientation[i] != v[i])
+            isV = 0;
+    }
+    int isH = 1;
+    for (int i = 0; i < 11; ++i)
+    {
+        if (orientation[i] != h[i])
+            isH = 0;
+    }
+    return (isH | isV) == 0 ? -1 : isV;
 }
