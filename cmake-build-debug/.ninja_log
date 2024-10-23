@@ -1,7 +1,0 @@
-# ninja log v6
-0	14	1728762121874518798	CMakeFiles/Project.dir/main.c.o	b8457b036b7dc330
-0	22	1728762448578688258	CMakeFiles/Project.dir/asst.c.o	6ba7c7e0b6cf142
-22	40	1728762448599688205	Project	82ec3d77d94ac388
-0	23	1728766031808636820	CMakeFiles/Project.dir/src/asst/asst.c.o	105bfe4d907d9c1f
-0	15	1728766062905558085	CMakeFiles/Project.dir/src/main.c.o	d5e78d5f62796e01
-15	41	1728766062920558047	Project	ac0efd8da72bd944
