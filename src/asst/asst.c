@@ -10,18 +10,18 @@ void clear_screen()
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 
-void print_configuration(Player* p)
+void print_configuration(const Player* p)
 {
-    for (size_t i = 0; i < GRID_SIZE; i++)
+    for (int i = 0; i < GRID_SIZE; ++i)
     {
         printf("%c\t", 'A' + i);
     }
 
     printf("\n");
-    for (size_t i = 0; i < GRID_SIZE; i++)
+    for (int i = 0; i < GRID_SIZE; ++i)
     {
         printf("%d\t", i + 1);
-        for (size_t j = 0; j < GRID_SIZE; j++)
+        for (int j = 0; j < GRID_SIZE; ++j)
         {
             if (p->grid[i][j] > 0)
                 printf("%i\t", p->grid[i][j]);
@@ -32,23 +32,23 @@ void print_configuration(Player* p)
     }
 }
 
-void print_grid(Player* attacker, Player* defender, int difficulty)
+void print_grid(Player* attacker, const Player* defender, const int difficulty)
 {
-    for (size_t i = 0; i < GRID_SIZE; i++)
+    for (int i = 0; i < GRID_SIZE; ++i)
     {
         printf("%c\t", 'A' + i);
     }
 
     printf("\n");
 
-    for (size_t i = 0; i < GRID_SIZE; i++)
+    for (int i = 0; i < GRID_SIZE; ++i)
     {
         printf("%d\t", i + 1);
-        for (size_t j = 0; j < GRID_SIZE; j++)
+        for (int j = 0; j < GRID_SIZE; ++j)
         {
             if (defender->grid[i][j] < -1)
             {
-                int ship_number = abs(defender->grid[i][j]);
+                const int ship_number = abs(defender->grid[i][j]);
 
                 if (defender->ships[ship_number - 2] == 0)
                 {
@@ -79,7 +79,7 @@ void print_grid(Player* attacker, Player* defender, int difficulty)
     }
 }
 
-int update_torpedo(Player* attacker, Player* defender, int is_sunk)
+int update_torpedo(Player* attacker, const Player* defender, const int is_sunk)
 {
     attacker->torpedo = 0;
 
@@ -99,7 +99,7 @@ int update_torpedo(Player* attacker, Player* defender, int is_sunk)
     return 0;
 }
 
-int is_sunk(Player* p, int ship_number)
+int is_sunk(const Player* p, const int ship_number)
 {
     // Thing hit is not a ship
     if (ship_number < 0)
@@ -112,7 +112,7 @@ int is_sunk(Player* p, int ship_number)
     return p->ships[ship_number - 2] == 0;
 }
 
-int fire(Player* attacker, Player* defender, int x, int y)
+int fire(Player* attacker, const Player* defender, const int x, const int y)
 {
     // Checks if a grid at this index contains a ship
     // Decrements the ship HP
@@ -133,7 +133,7 @@ int fire(Player* attacker, Player* defender, int x, int y)
     return item_hit;
 }
 
-int artillery(Player* attacker, Player* defender, const int x, const int y)
+int artillery(Player* attacker, const Player* defender, const int x, const int y)
 {
     // Maintain booleans to ensure that player gets his abilities if any ship is sunk
     int got_artillery = 0;
@@ -165,22 +165,23 @@ int artillery(Player* attacker, Player* defender, const int x, const int y)
     return got_hit;
 }
 
-int torpedo(Player* attacker, Player* defender, const int pos, int orientation)
+int torpedo(Player* attacker, const Player* defender, const int pos, const int orientation)
 {
     // orientation 0 for row, 1 for col
 
     int hit = 0;
-    for (size_t i = 0; i < GRID_SIZE; i++)
+    for (int i = 0; i < GRID_SIZE; ++i)
     {
         int square_hit;
+
         if (orientation == 0)
         {
-            int square_hit = fire(attacker, defender, pos, i);
+            square_hit = fire(attacker, defender, pos, i);
             // Can tell the user if he sunk a ship later using the is_sunk function if we need to
         }
         else
         {
-            int square_hit = fire(attacker, defender, i, pos);
+            square_hit = fire(attacker, defender, i, pos);
         }
 
         if (square_hit > 0)
@@ -192,7 +193,7 @@ int torpedo(Player* attacker, Player* defender, const int pos, int orientation)
     return hit;
 }
 
-int radar_sweep(Player* defender, int x, int y)
+int radar_sweep(const Player* defender, const int x, const int y)
 {
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
@@ -208,7 +209,7 @@ int radar_sweep(Player* defender, int x, int y)
     return 0;
 }
 
-void smoke_screen(Player* p, int x, int y)
+void smoke_screen(const Player* p, const int x, const int y)
 {
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
@@ -219,14 +220,14 @@ void smoke_screen(Player* p, int x, int y)
     }
 }
 
-int add_ship(Player* p, int x, int y, int ship_size, int orientation)
+int add_ship(const Player* p, const int x, const int y, const int ship_size, const int orientation)
 {
     // making sure ships fit in this orientation (0 for horizontal, 1 for vertical)
     if ((orientation == 0 && x + ship_size > GRID_SIZE) || (orientation == 1 && y + ship_size > GRID_SIZE))
         return 0;
 
     // making sure this orientation doesn't overlap with existing ship
-    for (size_t i = 0; i < ship_size; i++)
+    for (int i = 0; i < ship_size; ++i)
     {
         if (orientation == 0)
         {
@@ -245,7 +246,7 @@ int add_ship(Player* p, int x, int y, int ship_size, int orientation)
     }
 
     // No overlap or out of bound, so we can place
-    for (size_t i = 0; i < ship_size; i++)
+    for (int i = 0; i < ship_size; ++i)
     {
         if (orientation == 0)
         {
@@ -266,9 +267,9 @@ int add_ship(Player* p, int x, int y, int ship_size, int orientation)
     return 1;
 }
 
-int is_game_over(Player* defender)
+int is_game_over(const Player* defender)
 {
-    for (size_t i = 0; i < NUM_SHIPS; i++)
+    for (int i = 0; i < NUM_SHIPS; ++i)
     {
         if (defender->ships[i] > 0)
         {
@@ -285,7 +286,7 @@ int** initialize_grid()
     // First dimension have 10 pointers.
     int** grid = (int**)calloc(GRID_SIZE, sizeof(int*));
 
-    for (int i = 0; i < GRID_SIZE; i++)
+    for (int i = 0; i < GRID_SIZE; ++i)
     {
         // Second dimension have 10 elements.
         grid[i] = (int*)calloc(GRID_SIZE, sizeof(int));
@@ -328,28 +329,35 @@ int get_row(char square[4])
     return square[1] != '1' ? square[1] - '1' : (square[2] == '0' ? 9 : 0);
 }
 
-int is_valid_square(char square[4])
+// Changed bitwise AND to logical AND, this saves time when executed
+// Once one condition is not meat it short circuits instead of evaluating all other operations
+int is_valid_square(const char square[4])
 {
-    return 'A' <= square[0] & 'J' >= square[0] & '1' <= square[1] & '9' >= square[1] & (square[1] != '1' || (square[2]
+    return 'A' <= square[0] && 'J' >= square[0] && '1' <= square[1] && '9' >= square[1] && (square[1] != '1' || (square[
+            2]
         == '0' || square[2] == '\0'));
 }
 
-int get_orientation(char orientation[11])
+int get_orientation(const char orientation[11])
 {
-    char* v = "vertical";
-    char* h = "horizontal";
+    const char* v = "vertical";
+    const char* h = "horizontal";
 
     int isV = 1;
+
     for (int i = 0; i < 8; ++i)
     {
         if (orientation[i] != v[i])
             isV = 0;
     }
+
     int isH = 1;
+
     for (int i = 0; i < 11; ++i)
     {
         if (orientation[i] != h[i])
             isH = 0;
     }
-    return (isH | isV) == 0 ? -1 : isV;
+
+    return (isH | isV) ? isV : -1; // previously was (isH | isV) == 0 ? -1 : isV;
 }
