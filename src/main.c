@@ -4,12 +4,12 @@
 
 int main()
 {
-    Player *player[2] = {initialize_player(), initialize_player()};
+    Player* player[2] = {initialize_player(), initialize_player()};
 
     int exit = 0;
 
     // cursed random number generator
-    int current_player = get_random(2);
+    int current_player = _rand(2);
     printf("THE PLAYER IS: %d\n", current_player);
 
     int difficulty;
@@ -103,7 +103,7 @@ int main()
             continue;
         }
 
-        // Remove the artillary if the player did not use it
+        // Remove the artillery if the player did not use it
         // NOTE: this is done before checking to see if the move is allowed
         if (player[current_player]->artillery > 0 && move_number != 3)
         {
