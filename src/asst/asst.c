@@ -10,11 +10,11 @@ void clear_screen()
     printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
 }
 
-void print_configuration(const Player* p)
+void print_configuration(const Player *p)
 {
     for (int i = 0; i < GRID_SIZE; ++i)
     {
-        printf("%c\t", 'A' + i);
+        printf("\t%c", 'A' + i);
     }
 
     printf("\n");
@@ -32,11 +32,11 @@ void print_configuration(const Player* p)
     }
 }
 
-void print_grid(Player* attacker, const Player* defender, const int difficulty)
+void print_grid(Player *attacker, const Player *defender, const int difficulty)
 {
     for (int i = 0; i < GRID_SIZE; ++i)
     {
-        printf("%c\t", 'A' + i);
+        printf("\t%c", 'A' + i);
     }
 
     printf("\n");
@@ -79,7 +79,7 @@ void print_grid(Player* attacker, const Player* defender, const int difficulty)
     }
 }
 
-int update_torpedo(Player* attacker, const Player* defender, const int is_sunk)
+int update_torpedo(Player *attacker, const Player *defender, const int is_sunk)
 {
     attacker->torpedo = 0;
 
@@ -99,7 +99,7 @@ int update_torpedo(Player* attacker, const Player* defender, const int is_sunk)
     return 0;
 }
 
-int is_sunk(const Player* p, const int ship_number)
+int is_sunk(const Player *defender, const int ship_number)
 {
     // Thing hit is not a ship
     if (ship_number < 0)
@@ -109,10 +109,10 @@ int is_sunk(const Player* p, const int ship_number)
     // NOTE: this considers that the first ship on the grid will be 1, the second 2...
     // If we want to have the ships represented by their size, i.e. ship 1 represented by 2 and so on...
     // we would need to change the -1 to -2
-    return p->ships[ship_number - 2] == 0;
+    return defender->ships[ship_number - 2] == 0;
 }
 
-int fire(Player* attacker, const Player* defender, const int x, const int y)
+int fire(Player *attacker, const Player *defender, const int x, const int y)
 {
     // Checks if a grid at this index contains a ship
     // Decrements the ship HP
@@ -123,17 +123,21 @@ int fire(Player* attacker, const Player* defender, const int x, const int y)
         // NOTE: this considers that the first ship on the grid will be 1, the second 2...
         // If we want to have the ships represented by their size, i.e. ship 1 represented by 2 and so on...
         // we would need to change the -1 to -2
+
         defender->ships[item_hit - 2]--;
         defender->grid[x][y] *= -1;
+
+        if (is_sunk(defender, item_hit))
+        {
+            printf("You have sunk your opponent's %s\n", SHIP_NAMES[item_hit - 2]);
+            attacker->smoke_screen += 1;
+        }
     }
-    if (is_sunk(defender, item_hit) == 1)
-    {
-        attacker->smoke_screen += 1;
-    }
+
     return item_hit;
 }
 
-int artillery(Player* attacker, const Player* defender, const int x, const int y)
+int artillery(Player *attacker, const Player *defender, const int x, const int y)
 {
     // Maintain booleans to ensure that player gets his abilities if any ship is sunk
     int got_artillery = 0;
@@ -165,7 +169,7 @@ int artillery(Player* attacker, const Player* defender, const int x, const int y
     return got_hit;
 }
 
-int torpedo(Player* attacker, const Player* defender, const int pos, const int orientation)
+int torpedo(Player *attacker, const Player *defender, const int pos, const int orientation)
 {
     // orientation 0 for row, 1 for col
 
@@ -193,7 +197,7 @@ int torpedo(Player* attacker, const Player* defender, const int pos, const int o
     return hit;
 }
 
-int radar_sweep(const Player* defender, const int x, const int y)
+int radar_sweep(const Player *defender, const int x, const int y)
 {
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
@@ -209,7 +213,7 @@ int radar_sweep(const Player* defender, const int x, const int y)
     return 0;
 }
 
-void smoke_screen(const Player* p, const int x, const int y)
+void smoke_screen(const Player *p, const int x, const int y)
 {
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
@@ -220,10 +224,10 @@ void smoke_screen(const Player* p, const int x, const int y)
     }
 }
 
-int add_ship(const Player* p, const int x, const int y, const int ship_size, const int orientation)
+int add_ship(const Player *p, const int x, const int y, const int ship_size, const int orientation)
 {
     // making sure ships fit in this orientation (0 for horizontal, 1 for vertical)
-    if ((orientation == 0 && x + ship_size > GRID_SIZE) || (orientation == 1 && y + ship_size > GRID_SIZE))
+    if ((orientation == 1 && (x + ship_size) - 1 > GRID_SIZE) || (orientation == 0 && (y + ship_size) - 1 > GRID_SIZE))
         return 0;
 
     // making sure this orientation doesn't overlap with existing ship
@@ -267,7 +271,7 @@ int add_ship(const Player* p, const int x, const int y, const int ship_size, con
     return 1;
 }
 
-int is_game_over(const Player* defender)
+int is_game_over(const Player *defender)
 {
     for (int i = 0; i < NUM_SHIPS; ++i)
     {
@@ -281,26 +285,26 @@ int is_game_over(const Player* defender)
 }
 
 // Initializes a 2D matrix
-int** initialize_grid()
+int **initialize_grid()
 {
     // First dimension have 10 pointers.
-    int** grid = (int**)calloc(GRID_SIZE, sizeof(int*));
+    int **grid = (int **)calloc(GRID_SIZE, sizeof(int *));
 
     for (int i = 0; i < GRID_SIZE; ++i)
     {
         // Second dimension have 10 elements.
-        grid[i] = (int*)calloc(GRID_SIZE, sizeof(int));
+        grid[i] = (int *)calloc(GRID_SIZE, sizeof(int));
     }
 
     return grid;
 }
 
-Player* initialize_player()
+Player *initialize_player()
 {
-    Player* p = (Player*)malloc(sizeof(Player));
+    Player *p = (Player *)malloc(sizeof(Player));
 
     // Setting HP for each ship
-    p->ships = (int*)calloc(NUM_SHIPS, sizeof(int));
+    p->ships = (int *)calloc(NUM_SHIPS, sizeof(int));
     for (int i = 0; i < NUM_SHIPS; ++i)
     {
         p->ships[i] = i + 2;
@@ -331,20 +335,66 @@ int get_row(char square[4])
 
 // Changed bitwise AND to logical AND, this saves time when executed
 // Once one condition is not meat it short circuits instead of evaluating all other operations
-int is_valid_square(const char square[4])
+int is_valid_square_input(const char square[4])
 {
-    return 'A' <= square[0] && 'J' >= square[0] && '1' <= square[1] && '9' >= square[1] && (square[1] != '1' || (square[
-            2]
-        == '0' || square[2] == '\0'));
+    return 'A' <= square[0] && 'J' >= square[0] && '1' <= square[1] && '9' >= square[1] && (square[1] != '1' || (square[2] == '0' || square[2] == '\0'));
+}
+
+int get_move(const char move[10])
+{
+    const char *f = "Fire";
+    const char *r = "Radar";
+    const char *s = "Smoke";
+    const char *a = "Artillery";
+    const char *t = "Torpedo";
+
+    int isF = 1;
+    for (int i = 0; i < 4; ++i)
+    {
+        if (move[i] != f[i])
+            isF = 0;
+    }
+
+    int isR = 1;
+    for (int i = 0; i < 5; ++i)
+    {
+        if (move[i] != r[i])
+            isR = 0;
+    }
+
+    int isS = 1;
+    for (int i = 0; i < 5; ++i)
+    {
+        if (move[i] != s[i])
+            isS = 0;
+    }
+
+    int isA = 1;
+    for (int i = 0; i < 9; ++i)
+    {
+        if (move[i] != a[i])
+            isA = 0;
+    }
+
+    int isT = 1;
+    for (int i = 0; i < 7; ++i)
+    {
+        if (move[i] != t[i])
+            isT = 0;
+    }
+
+    return (isF | isR | isS | isA | isT) == 0 ? -1 : (isF ? 0 : isR ? 1
+                                                            : isS   ? 2
+                                                            : isA   ? 3
+                                                                    : 4);
 }
 
 int get_orientation(const char orientation[11])
 {
-    const char* v = "vertical";
-    const char* h = "horizontal";
+    const char *v = "vertical";
+    const char *h = "horizontal";
 
     int isV = 1;
-
     for (int i = 0; i < 8; ++i)
     {
         if (orientation[i] != v[i])
@@ -352,7 +402,6 @@ int get_orientation(const char orientation[11])
     }
 
     int isH = 1;
-
     for (int i = 0; i < 11; ++i)
     {
         if (orientation[i] != h[i])
@@ -360,4 +409,25 @@ int get_orientation(const char orientation[11])
     }
 
     return (isH | isV) ? isV : -1; // previously was (isH | isV) == 0 ? -1 : isV;
+}
+
+int get_random(int range)
+{
+    // "algorithm" for finding random number
+
+    // no, i dont know why this work
+    void *temp = malloc(1);
+    int res = (((int)temp) / 7) % range;
+    free(temp);
+    return res;
+}
+
+void print_available_moves(Player *p)
+{
+    printf("Available moves:\n");
+    printf("Fire: ∞");
+    printf("Radar Sweeps: %d", p->radar_sweep);
+    printf("Smoke Screens: %d", p->smoke_screen);
+    printf("Artillary: %d", p->artillery);
+    printf("Torpedo: %d", p->torpedo);
 }
