@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "asst/asst.h"
+#include "asst/asst.c"
 
 int main()
 {
@@ -94,12 +94,23 @@ int main()
 
             x = get_row(square);
             y = get_column(square);
+            break;
         }
         if (x == -1)
         {
             // player inputted invalid coordinates so they lose their turn
+            printf("Invalid coordinates, you have lost your turn.");
+            continue;
         }
-        // check if it's an allowed move (we can just continue after switching players)
+
+        // Remove the artillary if the player did not use it
+        // NOTE: this is done before checking to see if the move is allowed
+        if (player[current_player]->artillery > 0 && move_number != 3)
+        {
+            player[current_player]->artillery = 0;
+        }
+
+        // TODO: check if it's an allowed move (we can just continue after switching players)
 
         if (move_number == 0)
         {
@@ -117,6 +128,7 @@ int main()
         }
         else if (move_number == 1)
         {
+            player[current_player] -= 1;
             int found = radar_sweep(player[opponent], x, y);
             if (found)
             {
@@ -129,12 +141,14 @@ int main()
         }
         else if (move_number == 2)
         {
+            player[current_player]->smoke_screen -= 1;
             smoke_screen(player[current_player], x, y);
             clear_screen();
         }
         else if (move_number == 3)
         {
-            int hit = artillery(player[opponent], player[current_player], x, y);
+            player[current_player]->artillery = 0;
+            int hit = artillery(player[current_player], player[opponent], x, y);
             if (hit > 0)
             {
                 printf("Hit!");
@@ -146,9 +160,34 @@ int main()
         }
         else
         {
+            player[current_player]->torpedo = 0;
             // TODO: implement logic to take the input of the torpedo, which should be
             // either a character or a number, and determine the orientation from that
             // torpedo(player[current_player], player[opponent], )
         }
+
+        printf("\n");
+
+        // Check game over
+        if (is_game_over(player[opponent]))
+        {
+            printf("Player %d Wins!", current_player + 1);
+            break;
+        }
+
+        // Turn mechanic
+        current_player = current_player ^ 1;
     }
+
+    // Free members of structs to avoid dangling pointers
+    free(player[0]->grid);
+    free(player[0]->visible_grid);
+    free(player[0]->ships);
+    free(player[1]->grid);
+    free(player[1]->visible_grid);
+    free(player[1]->ships);
+
+    // Free player pointers themselves
+    free(player[0]);
+    free(player[1]);
 }

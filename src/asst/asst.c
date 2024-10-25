@@ -131,6 +131,12 @@ int fire(Player *attacker, const Player *defender, const int x, const int y)
         {
             printf("You have sunk your opponent's %s\n", SHIP_NAMES[item_hit - 2]);
             attacker->smoke_screen += 1;
+
+            // Gives the player an artillary when he sinks a ship
+            if (attacker->artillery == 0)
+            {
+                attacker->artillery = 1;
+            }
         }
     }
 
@@ -425,9 +431,9 @@ int get_random(int range)
 void print_available_moves(Player *p)
 {
     printf("Available moves:\n");
-    printf("Fire: ∞");
-    printf("Radar Sweeps: %d", p->radar_sweep);
-    printf("Smoke Screens: %d", p->smoke_screen);
-    printf("Artillary: %d", p->artillery);
-    printf("Torpedo: %d", p->torpedo);
+    printf("Fire: ∞\n");
+    printf("Radar Sweeps: %d\n", p->radar_sweep);
+    printf("Smoke Screens: %d\n", p->smoke_screen);
+    printf("Artillary: %d\n", p->artillery);
+    printf("Torpedo: %d\n", p->torpedo);
 }
