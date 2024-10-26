@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "asst/asst.c"
+#include "asst/asst.h"
 
 int main()
 {
