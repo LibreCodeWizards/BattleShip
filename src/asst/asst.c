@@ -184,6 +184,11 @@ int fire(Player *attacker, const Player *defender, const int x, const int y)
             }
         }
     }
+    else if (item_hit == 0)
+    {
+        // Mark as miss
+        defender->grid[x][y] = -1;
+    }
 
     return item_hit;
 }
@@ -443,7 +448,7 @@ int is_valid_torpedo_row(const char square[4])
 // Once one condition is not met it short circuits instead of evaluating all other operations
 int is_valid_square_input(const char square[4])
 {
-    return is_valid_column(square) && is_valid_column(square);
+    return is_valid_row(square) && is_valid_column(square);
 }
 
 int get_move(const char move[10])

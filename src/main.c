@@ -106,7 +106,7 @@ int main()
                 continue;
             }
 
-            if (move_number == 3 && player[current_player]->torpedo <= 0)
+            if (move_number == 4 && player[current_player]->torpedo <= 0)
             {
                 printf("You dont have a torpedo!\n");
                 continue;
