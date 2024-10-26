@@ -59,9 +59,17 @@ int** initialize_grid();
 
 Player* initialize_player();
 
-int get_column(char square[4]);
+int get_column(const char square[4]);
 
-int get_row(char square[4]);
+int get_row(const char square[4]);
+
+int get_torpedo_row(const char square[4]);
+
+int is_valid_column(const char square[4]);
+
+int is_valid_row(const char square[4]);
+
+int is_valid_torpedo_row(const char square[4]);
 
 int is_valid_square_input(const char square[4]);
 

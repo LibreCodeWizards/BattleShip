@@ -43,8 +43,8 @@ void print_configuration(const Player* p)
     {
         printf("\t%c", 'A' + i);
     }
-
     printf("\n");
+
     for (int i = 0; i < GRID_SIZE; ++i)
     {
         printf("%d\t", i + 1);
@@ -131,15 +131,18 @@ int update_torpedo(Player* attacker, const Player* defender, const int is_sunk)
     if (is_sunk)
     {
         int count = 0;
+        // Counts the number of currently sunk ships
         for (int i = 0; i < NUM_SHIPS; ++i)
         {
             count += defender->ships[i] == 0;
         }
+
         if (count == 3)
         {
             attacker->torpedo = 1;
         }
-        return attacker->torpedo == 1;
+
+        return attacker->torpedo;
     }
     return 0;
 }
@@ -162,7 +165,7 @@ int fire(Player* attacker, const Player* defender, const int x, const int y)
     // Checks if a grid at this index contains a ship
     // Decrements the ship HP
     // Returns the number at the grid[x][y]
-    int item_hit = defender->grid[x][y];
+    const int item_hit = defender->grid[x][y];
     if (item_hit > 0)
     {
         // NOTE: this considers that the first ship on the grid will be 1, the second 2...
@@ -398,34 +401,66 @@ Player* initialize_player()
 
 
 // Turns square input into coordinates on the grid.
-int get_column(char square[4])
+int get_column(const char square[4])
 {
     return square[0] - 'A';
 }
 
-int get_row(char square[4])
+int get_row(const char square[4])
 {
     return square[1] != '1' ? square[1] - '1' : (square[2] == '0' ? 9 : 0);
+}
+
+int get_torpedo_row(const char square[4])
+{
+    return square[0] != '1' ? square[0] - '1' : (square[1] == '0' ? 9 : 0);
+}
+
+int is_valid_column(const char square[4])
+{
+    if (!square)
+        return -1;
+    return 'A' <= square[0] && 'J' >= square[0];
+}
+
+int is_valid_row(const char square[4])
+{
+    if (!square)
+        return -1;
+    return '1' <= square[1] && '9' >= square[1] &&
+    (
+        square[1] != '1' ||
+        (
+            square[2] == '0' ||
+            square[2] == '\0'
+        )
+    );
+}
+
+int is_valid_torpedo_row(const char square[4])
+{
+    if (!square)
+        return -1;
+    return '1' <= square[0] && '9' >= square[0] &&
+    (
+        square[0] != '1' ||
+        (
+            square[1] == '0' ||
+            square[1] == '\0'
+        )
+    );
 }
 
 // Changed bitwise AND to logical AND, this saves time when executed
 // Once one condition is not met it short circuits instead of evaluating all other operations
 int is_valid_square_input(const char square[4])
 {
-    return 'A' <= square[0] && 'J' >= square[0] &&
-        '1' <= square[1] && '9' >= square[1] &&
-        (
-            square[1] != '1' ||
-            (
-                square[2] == '0' ||
-                square[2] == '\0'
-            )
-        );
+    return is_valid_column(square) && is_valid_column(square);
 }
 
 int get_move(const char move[10])
 {
-    if (move == nullptr)
+    if (!move)
         return -1;
 
     const int len = _strlen(move);
@@ -494,7 +529,7 @@ int get_move(const char move[10])
         if (move[0] == 'T' | move[0] == 't')
         {
             int is_torpedo = 1;
-            for (int i = 0; i < 7; ++i)
+            for (int i = 1; i < 7; ++i)
             {
                 if (move[i] != MOVE_LIST[4][i])
                 {
