@@ -4,7 +4,7 @@
 
 int main()
 {
-    Player* player[2] = {initialize_player(), initialize_player()};
+    Player *player[2] = {initialize_player(), initialize_player()};
 
     int exit = 0;
 
@@ -93,10 +93,22 @@ int main()
 
             move_number = get_move(move);
 
-
-            if (move_number == -1 || (move_number == 4 && player[current_player]->torpedo == 0))
+            if (move_number == -1)
             {
                 printf("That is not a legal move!\n");
+                continue;
+            }
+
+            // If player doesnt have artillary or torpedo and he tries to play them, make him choose again
+            if (move_number == 3 && player[current_player]->artillery <= 0)
+            {
+                printf("You dont have artilleries!\n");
+                continue;
+            }
+
+            if (move_number == 3 && player[current_player]->torpedo <= 0)
+            {
+                printf("You dont have a torpedo!\n");
                 continue;
             }
 
@@ -144,7 +156,17 @@ int main()
             player[current_player]->artillery = 0;
         }
 
-        // TODO: check if it's an allowed move (we can just continue after switching players)
+        // if player doesnt have radar sweep or smokescreen and he tries to play them, he loses his turn
+        if (move_number == 1 && player[current_player]->radar_sweep <= 0)
+        {
+            printf("You don't have a radar sweep! You have lost your turn!");
+            continue;
+        }
+        if (move_number == 2 && player[current_player]->smoke_screen <= 0)
+        {
+            printf("You don't have a smoke screen! You have lost your turn!");
+            continue;
+        }
 
         if (move_number == 0)
         {
@@ -153,7 +175,7 @@ int main()
             {
                 printf("Hit!");
                 int sunk = is_sunk(player[opponent], hit);
-                update_torpedo(player[current_player], player[opponent], hit);
+                update_torpedo(player[current_player], player[opponent], sunk);
             }
             else
             {
@@ -162,7 +184,7 @@ int main()
         }
         else if (move_number == 1)
         {
-            //player[current_player] -= 1;
+            player[current_player]->radar_sweep -= 1;
             const int found = radar_sweep(player[opponent], x, y);
             if (found)
             {
@@ -195,7 +217,15 @@ int main()
         else
         {
             player[current_player]->torpedo = 0;
-            torpedo(player[current_player], player[opponent], x == 10 ? y : x, x == 10);
+            int hit = torpedo(player[current_player], player[opponent], x == 10 ? y : x, x == 10);
+            if (hit > 0)
+            {
+                printf("Hit!");
+            }
+            else
+            {
+                printf("Miss!");
+            }
         }
 
         printf("\n");
