@@ -8,9 +8,10 @@ int main()
 
     int exit = 0;
 
-    // cursed random number generator
+    // Random number generator
     int current_player = _rand(2);
-    printf("THE PLAYER IS: %d\n", current_player);
+
+    printf("THE CURRENT PLAYER IS: %d\n", current_player);
 
     int difficulty;
     while (1)
@@ -39,21 +40,27 @@ int main()
             while (1)
             {
                 printf("Enter coordinates of %s (Example: A2 vertical or C4 horizontal): ", SHIP_NAMES[ship_size - 2]);
+
                 char square[4];
                 char orientation[11];
+
                 scanf("%s %s", square, orientation);
+
                 if (!is_valid_square_input(square) || get_orientation(orientation) == -1)
                 {
                     printf("Invalid Input!\n");
                     continue;
                 }
-                int x = get_row(square);
-                int y = get_column(square);
+
+                const int x = get_row(square);
+                const int y = get_column(square);
+
                 if (!add_ship(player[p], x, y, ship_size, get_orientation(orientation)))
                 {
                     printf("You can't put your ship there!\n");
                     continue;
                 }
+
                 break;
             }
             print_configuration(player[p]);
@@ -63,30 +70,55 @@ int main()
 
     while (!exit)
     {
-        int opponent = current_player ^ 1;
+        const int opponent = current_player ^ 1;
+
         printf("Player %d, make your move: \n", current_player + 1);
+
         printf("Your opponent's current grid is:\n");
         print_grid(player[current_player], player[opponent], difficulty);
+
         printf("Your available moves are:\n");
         print_available_moves(player[current_player]);
 
         int move_number;
         int x, y;
+
         while (1)
         {
             printf("Enter your move: ");
+
             char move[10];
             char square[4];
             scanf("%s %s", move, square);
 
             move_number = get_move(move);
-            if (move_number == -1)
+
+
+            if (move_number == -1 || (move_number == 4 && player[current_player]->torpedo == 0))
             {
-                printf("That is not a legal move!");
+                printf("That is not a legal move!\n");
                 continue;
             }
 
-            if (!is_valid_square_input(square))
+            if (move_number == 4 && !is_valid_torpedo_row(square) && !is_valid_column(square))
+            {
+                x = y = -1;
+                break;
+            }
+            if (move_number == 4 && is_valid_torpedo_row(square))
+            {
+                x = get_torpedo_row(square);
+                y = 10;
+                break;
+            }
+            if (move_number == 4 && is_valid_column(square))
+            {
+                x = 10;
+                y = get_column(square);
+                break;
+            }
+
+            if (!is_valid_square_input(square) && move_number != 4)
             {
                 x = y = -1;
                 break;
@@ -94,11 +126,13 @@ int main()
 
             x = get_row(square);
             y = get_column(square);
+
             break;
         }
+
         if (x == -1)
         {
-            // player inputted invalid coordinates so they lose their turn
+            // Player inputted invalid coordinates so they lose their turn
             printf("Invalid coordinates, you have lost your turn.");
             continue;
         }
@@ -114,7 +148,7 @@ int main()
 
         if (move_number == 0)
         {
-            int hit = fire(player[current_player], player[opponent], x, y);
+            const int hit = fire(player[current_player], player[opponent], x, y);
             if (hit > 0)
             {
                 printf("Hit!");
@@ -128,8 +162,8 @@ int main()
         }
         else if (move_number == 1)
         {
-            player[current_player] -= 1;
-            int found = radar_sweep(player[opponent], x, y);
+            //player[current_player] -= 1;
+            const int found = radar_sweep(player[opponent], x, y);
             if (found)
             {
                 printf("Enemy ships found!");
@@ -161,9 +195,7 @@ int main()
         else
         {
             player[current_player]->torpedo = 0;
-            // TODO: implement logic to take the input of the torpedo, which should be
-            // either a character or a number, and determine the orientation from that
-            // torpedo(player[current_player], player[opponent], )
+            torpedo(player[current_player], player[opponent], x == 10 ? y : x, x == 10);
         }
 
         printf("\n");
