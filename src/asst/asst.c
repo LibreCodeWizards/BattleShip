@@ -584,12 +584,9 @@ int _rand(const int range)
     // Since we are not allowed to use any libraries we will generate
     // a random number by allocating a random memory address in the
     // memory using malloc, we will use the garbage value as a rand.
-
-    int *rand = (int *)malloc(sizeof(int));
-
-    int res = (rand[0] / 7) % range;
-
-    free(rand);
+    void *temp = malloc(1);
+    int res = (((int)temp) / 7) % range;
+    free(temp);
 
     return res;
 
