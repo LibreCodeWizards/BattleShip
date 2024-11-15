@@ -583,15 +583,12 @@ int _rand(const int range)
 {
     // Since we are not allowed to use any libraries we will generate
     // a random number by allocating a random memory address in the
-    // memory using malloc, we will use the garbage value as a rand.
+    // memory using malloc, we will use the address as a rand.
     void *temp = malloc(1);
     int res = (((int)temp) / 7) % range;
     free(temp);
 
     return res;
-
-    /*srand48(time(nullptr));
-    return rand() % range;*/
 }
 
 void print_available_moves(const Player *p)
