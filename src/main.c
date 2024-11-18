@@ -4,7 +4,7 @@
 
 int main()
 {
-    Player *player[2] = {initialize_player(), initialize_player()};
+    Player* player[2] = {initialize_player(), initialize_player()};
 
     int exit = 0;
 
