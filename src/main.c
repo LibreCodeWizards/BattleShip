@@ -233,6 +233,10 @@ int main()
         if (move_number == 0)
         {
             const int hit = fire(player[current_player], player[opponent], x, y);
+            if (mode == 0 && current_player == 1 && hit)
+            {
+                latest_radar_bot_hit[0] = latest_radar_bot_hit[1] = -1;
+            }
             if (hit > 0)
             {
                 printf("Hit!");
@@ -293,6 +297,8 @@ int main()
         else
         {
             player[current_player]->torpedo = 0;
+            // x == 10 means its horizontal
+            // if x 10, we use y as the coordinate, else use x as the coordinate
             int hit = torpedo(player[current_player], player[opponent], x == 10 ? y : x, x == 10);
             if (hit > 0)
             {
