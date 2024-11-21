@@ -5,7 +5,7 @@ project(Battleship LANGUAGES C)
 set(CMAKE_C_STANDARD 23)
 
 # Add the library
-add_library(asst src/asst/asst.c)
+add_library(asst src/asst/asst.c src/asst/bot.c)
 
 # Specify the include directories for the library
 target_include_directories(asst PUBLIC src/asst)

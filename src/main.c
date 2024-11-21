@@ -1,17 +1,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "asst/asst.h"
+#include "bot.h"
 
 int main()
 {
-    Player* player[2] = {initialize_player(), initialize_player()};
+    Player *player[2] = {initialize_player(), initialize_player()};
 
     int exit = 0;
-
-    // Random number generator
-    int current_player = _rand(2);
-
-    printf("THE CURRENT PLAYER IS: %d\n", current_player);
 
     int difficulty;
     while (1)
@@ -26,12 +22,33 @@ int main()
         break;
     }
 
+    // 0 means single player, 1 is multiplaye
+    int mode;
+    while (1)
+    {
+        printf("Choose mode: (0 for Single player against bot and 1 for multiplayer): ");
+        scanf("%d", &mode);
+        if (mode != 1 && mode != 0)
+        {
+            printf("Invalid mode!\n");
+            continue;
+        }
+        break;
+    }
+
     for (int p = 0; p < 2; ++p)
     {
-        if (p == 0)
-            printf("Player 1, please configure your ships\n");
+        if (mode == 1)
+        {
+            if (p == 0)
+                printf("Player 1, please configure your ships\n");
+            else
+                printf("Player 2, please configure your ships\n");
+        }
         else
-            printf("Player 2, please configure your ships\n");
+        {
+            printf("Human Player, please configure your ships\n");
+        }
         // prints the empty grid
         print_configuration(player[1]);
 
@@ -66,80 +83,125 @@ int main()
             print_configuration(player[p]);
         }
         clear_screen();
+
+        if (mode == 0)
+        {
+            // get bot's configuration
+            // NOTE: bot is always player[1], human is always player[0]
+
+            bot_configure_ships(player[1]);
+            break;
+        }
     }
 
+    // Random number generator
+    int current_player = _rand(2);
+    int turn = 0;
+
+    int latest_radar_bot_hit[] = {-1, -1};
     while (!exit)
     {
+        turn++;
         const int opponent = current_player ^ 1;
-
-        printf("Player %d, make your move: \n", current_player + 1);
-
-        printf("Your opponent's current grid is:\n");
-        print_grid(player[current_player], player[opponent], difficulty);
-
-        printf("Your available moves are:\n");
-        print_available_moves(player[current_player]);
-
         int move_number;
         int x, y;
 
-        while (1)
+        if (mode == 0)
         {
-            printf("Enter your move: ");
 
-            char move[10];
-            char square[4];
-            scanf("%s %s", move, square);
-
-            move_number = get_move(move);
-
-            if (move_number == -1)
+            if (current_player == 0)
             {
-                printf("That is not a legal move!\n");
-                continue;
+                printf("Human Player, it's your turn: \n");
+
+                printf("The bot's current grid is:\n");
+                print_grid(player[current_player], player[opponent], difficulty);
+
+                printf("Your available moves are:\n");
+                print_available_moves(player[current_player]);
             }
+        }
+        else
+        {
+            printf("Player %d, it's your turn: \n", current_player + 1);
 
-            // If player doesnt have artillary or torpedo and he tries to play them, make him choose again
-            if (move_number == 3 && player[current_player]->artillery <= 0)
-            {
-                printf("You dont have artilleries!\n");
-                continue;
-            }
+            printf("Your opponent's current grid is:\n");
+            print_grid(player[current_player], player[opponent], difficulty);
 
-            if (move_number == 4 && player[current_player]->torpedo <= 0)
-            {
-                printf("You dont have a torpedo!\n");
-                continue;
-            }
+            printf("Your available moves are:\n");
+            print_available_moves(player[current_player]);
+        }
 
-            if (move_number == 4 && !is_valid_torpedo_row(square) && !is_valid_column(square))
+        if (mode == 1 || current_player == 0)
+        {
+            while (1)
             {
-                x = y = -1;
-                break;
-            }
-            if (move_number == 4 && is_valid_torpedo_row(square))
-            {
-                x = get_torpedo_row(square);
-                y = 10;
-                break;
-            }
-            if (move_number == 4 && is_valid_column(square))
-            {
-                x = 10;
+                printf("Enter your move: ");
+
+                char move[10];
+                char square[4];
+                scanf("%s %s", move, square);
+
+                move_number = get_move(move);
+
+                if (move_number == -1)
+                {
+                    printf("That is not a legal move!\n");
+                    continue;
+                }
+
+                // If player doesnt have artillary or torpedo and he tries to play them, make him choose again
+                if (move_number == 3 && player[current_player]->artillery <= 0)
+                {
+                    printf("You dont have artilleries!\n");
+                    continue;
+                }
+
+                if (move_number == 4 && player[current_player]->torpedo <= 0)
+                {
+                    printf("You dont have a torpedo!\n");
+                    continue;
+                }
+
+                if (move_number == 4 && !is_valid_torpedo_row(square) && !is_valid_column(square))
+                {
+                    x = y = -1;
+                    break;
+                }
+                if (move_number == 4 && is_valid_torpedo_row(square))
+                {
+                    x = get_torpedo_row(square);
+                    y = 10;
+                    break;
+                }
+                if (move_number == 4 && is_valid_column(square))
+                {
+                    x = 10;
+                    y = get_column(square);
+                    break;
+                }
+
+                if (!is_valid_square_input(square) && move_number != 4)
+                {
+                    x = y = -1;
+                    break;
+                }
+
+                x = get_row(square);
                 y = get_column(square);
+
                 break;
             }
+        }
+        else
+        {
+            // TODO: get bot move
+            get_bot_move(player[current_player], player[opponent], &x, &y, &move_number, turn, latest_radar_bot_hit);
 
-            if (!is_valid_square_input(square) && move_number != 4)
-            {
-                x = y = -1;
-                break;
-            }
+            const char *move_name = MOVE_LIST[move_number];
+            char col = 'A' + y;
+            char row = x + 1;
 
-            x = get_row(square);
-            y = get_column(square);
-
-            break;
+            printf("The Bot Played: %s %c%d\n", move_name, col, row);
         }
 
         if (x == -1)
@@ -185,14 +247,28 @@ int main()
         else if (move_number == 1)
         {
             player[current_player]->radar_sweep -= 1;
-            const int found = radar_sweep(player[opponent], x, y);
-            if (found)
+
+            if (mode == 1 || current_player == 0)
             {
-                printf("Enemy ships found!");
+                const int found = radar_sweep(player[opponent], x, y);
+                if (found)
+                {
+                    printf("Enemy ships found!");
+                }
+                else
+                {
+                    printf("No enemy ships found!");
+                }
             }
             else
             {
-                printf("No enemy ships found!");
+                // Do Bot Radar
+                const int found = radar_sweep(player[opponent], x, y);
+                if (found)
+                {
+                    latest_radar_bot_hit[0] = x;
+                    latest_radar_bot_hit[1] = y;
+                }
             }
         }
         else if (move_number == 2)
