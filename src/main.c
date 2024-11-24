@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "asst/asst.h"
-#include "bot.h"
+#include "asst/bot.h"
 
 int main()
 {
@@ -36,7 +36,7 @@ int main()
         break;
     }
 
-    for (int p = 0; p < 2; ++p)
+    for (int p = 0; p < 2; p++)
     {
         if (mode == 1)
         {
@@ -81,15 +81,19 @@ int main()
                 break;
             }
             print_configuration(player[p]);
+            printf("AFTER WE PRINT CONFIGURATION");
         }
+        // WTF IS GOING ON HERE????????
+        printf("BEFORE CLEAR SCREEN");
         clear_screen();
+        printf("AFTER CLEAR SCREEN");
 
         if (mode == 0)
         {
             // get bot's configuration
             // NOTE: bot is always player[1], human is always player[0]
-
             bot_configure_ships(player[1]);
+            printf("CONFIGURED BOT SHIPS");
             break;
         }
     }
@@ -98,11 +102,12 @@ int main()
     int current_player = _rand(2);
     int turn = 0;
 
-    int latest_radar_bot_hit[] = {-1, -1};
+    int latest_radar_bot_hit[2] = {-1, -1};
     while (!exit)
     {
+        printf("ENTERED GAME LOOP");
         turn++;
-        const int opponent = current_player ^ 1;
+        int opponent = current_player ^ 1;
         int move_number;
         int x, y;
 
@@ -130,7 +135,6 @@ int main()
             printf("Your available moves are:\n");
             print_available_moves(player[current_player]);
         }
-
         if (mode == 1 || current_player == 0)
         {
             while (1)
@@ -195,6 +199,7 @@ int main()
         else
         {
             // TODO: get bot move
+            printf("ENTERED CONDITION WHERE BOT PLAYs");
             get_bot_move(player[current_player], player[opponent], &x, &y, &move_number, turn, latest_radar_bot_hit);
 
             const char *move_name = MOVE_LIST[move_number];
@@ -311,6 +316,7 @@ int main()
         }
 
         printf("\n");
+        printf("BIG MEOW");
 
         // Check game over
         if (is_game_over(player[opponent]))
@@ -320,6 +326,7 @@ int main()
         }
 
         // Turn mechanic
+        printf("CHANGED TURN SUCCESSFULLY!");
         current_player = current_player ^ 1;
     }
 

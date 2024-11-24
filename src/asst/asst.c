@@ -2,9 +2,9 @@
 // Created by ahmad on 10/12/24.
 //
 
-#include "asst.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include "asst.h"
 
 const char *ORIENTATION[2] =
     {
@@ -62,6 +62,7 @@ void print_configuration(const Player *p)
         printf("\n");
     }
 }
+
 /*
  * Requires: Nothing
  * Effects: Prints the defender's grid during the game to show the attacker their opponent grid
@@ -400,6 +401,30 @@ int add_ship(const Player *p, const int x, const int y, const int ship_size, con
     return 1;
 }
 
+void remove_ship(const Player *p, int x, int y, const int ship_size, const int orientation)
+{
+    if (!p || p == NULL || !can_fit(p, x, y, ship_size, orientation))
+    {
+        return;
+    }
+    if (orientation == 0)
+    {
+        for (int i = y; i < y + ship_size; i++)
+        {
+            p->grid[x][i] = 0;
+            p->visible_grid[x][i] = 0;
+        }
+    }
+    else
+    {
+        for (int i = x; i < x + ship_size; i++)
+        {
+            p->grid[i][y] = 0;
+            p->visible_grid[i][y] = 0;
+        }
+    }
+}
+
 /*
 Requires: nothing
 Effects: returns 1 if all the defender's ships have 0 hp, else 0
@@ -430,6 +455,17 @@ int **initialize_grid()
     {
         // Second dimension have 10 elements.
         grid[i] = (int *)calloc(GRID_SIZE, sizeof(int));
+    }
+
+    return grid;
+}
+
+double **initialize_double_grid()
+{
+    double **grid = (double **)malloc(GRID_SIZE * sizeof(double *));
+    for (int i = 0; i < GRID_SIZE; i++)
+    {
+        grid[i] = (double *)malloc(GRID_SIZE * sizeof(double));
     }
 
     return grid;

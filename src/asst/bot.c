@@ -1,4 +1,7 @@
+#include <stdio.h>
+#include <stdlib.h>
 #include "bot.h"
+#include "asst.h"
 
 void bot_configure_ships(Player *bot)
 {
@@ -18,11 +21,490 @@ void bot_configure_ships(Player *bot)
     }
 }
 
-// TODO: finish Later
-int **get_heat_map(Player *opponent)
+double activation(double x, double y)
 {
+    return ((x + 1) / (y + 1)) + (1 / (y - x + 1));
+}
 
-    int **heat_map = initialize_grid();
+// TODO: finish Later
+double **get_heat_map(Player *opponent)
+{
+    // PLEASE DO NOT TRY TO REFORMAT THIS CODE
+
+    int hit_count = 0;
+    // Count the number of hit squares not including those that have been sunk
+    for (int i = 0; i < NUM_SHIPS; i++)
+    {
+        if (opponent->ships[i] > 0)
+        {
+            hit_count += i + 2 - opponent->ships[i];
+        }
+    }
+
+    double **hm = initialize_double_grid();
+    Player *dummy = initialize_player();
+    // loop over opponent ship healths, if not 0, make corresponding index its size
+    int ships[] = {-1, -1, -1, -1};
+    for (int i = 0; i < NUM_SHIPS; ++i)
+        if (opponent->grid[i] > 0)
+            ships[i] = i + 2;
+
+    // sort the ships array in descending order to make it easier to loop over
+    for (int i = 0; i < NUM_SHIPS - 1; ++i)
+        for (int j = i + 1; j < NUM_SHIPS; ++j)
+            if (ships[i] < ships[j])
+            {
+                int temp = ships[i];
+                ships[i] = ships[j];
+                ships[j] = temp;
+            }
+
+    // If we have less than 4 ships, we can bruteforce everything
+    if (ships[NUM_SHIPS - 1] == -1)
+    {
+        for (int i0 = 0; i0 < GRID_SIZE; ++i0)
+        {
+            for (int j0 = 0; j0 < GRID_SIZE; ++j0)
+            {
+                for (int dir0 = 0; dir0 < 2; dir0++)
+                {
+                    if (ships[1] == -1)
+                    {
+                        // there's only 1 ship
+                        int result = add_ship(dummy, i0, j0, ships[0], dir0);
+                        if (result)
+                        {
+                            int covered_hits = 0;
+                            int covered_misses = 0;
+                            if (dir0 == 0)
+                            {
+                                for (int dy = 0; dy < ships[0]; ++dy)
+                                {
+                                    if (opponent->grid[i0][j0 + dy] < -1)
+                                        covered_hits++;
+                                    if (opponent->grid[i0][j0 + dy] == -1)
+                                        covered_misses++;
+                                }
+                            }
+                            else
+                            {
+                                for (int dx = 0; dx < ships[0]; ++dx)
+                                {
+                                    if (opponent->grid[i0 + dx][j0] < -1)
+                                        covered_hits++;
+                                    if (opponent->grid[i0 + dx][j0] == -1)
+                                        covered_misses++;
+                                }
+                            }
+                            if (covered_hits == hit_count && covered_misses != 0)
+                            {
+                                if (dir0 == 0)
+                                {
+                                    for (int dy = 0; dy < ships[0]; ++dy)
+                                    {
+                                        hm[i0][j0 + dy]++;
+                                    }
+                                }
+                                else
+                                {
+                                    for (int dx = 0; dx < ships[0]; ++dx)
+                                    {
+                                        hm[i0 + dx][j0]++;
+                                    }
+                                }
+                            }
+                        }
+                        // remove the ship
+                        remove_ship(dummy, i0, j0, ships[0], dir0);
+                    }
+                    else
+                    {
+                        for (int i1 = 0; i1 < GRID_SIZE; ++i1)
+                        {
+                            for (int j1 = 0; j1 < GRID_SIZE; ++j1)
+                            {
+                                for (int dir1 = 0; dir1 < 2; ++dir1)
+                                {
+                                    if (ships[2] == -1)
+                                    {
+                                        int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1);
+                                        if (result == 2)
+                                        {
+                                            int covered_hits = 0;
+                                            int covered_misses = 0;
+                                            if (dir0 == 0)
+                                            {
+                                                for (int dy = 0; dy < ships[0]; ++dy)
+                                                {
+                                                    if (opponent->grid[i0][j0 + dy] < -1)
+                                                        covered_hits++;
+                                                    if (opponent->grid[i0][j0 + dy] == -1)
+                                                        covered_misses++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                for (int dx = 0; dx < ships[0]; ++dx)
+                                                {
+                                                    if (opponent->grid[i0 + dx][j0] < -1)
+                                                        covered_hits++;
+                                                    if (opponent->grid[i0 + dx][j0] == -1)
+                                                        covered_misses++;
+                                                }
+                                            }
+
+                                            if (dir1 == 0)
+                                            {
+                                                for (int dy = 0; dy < ships[1]; ++dy)
+                                                {
+                                                    if (opponent->grid[i1][j1 + dy] < -1)
+                                                        covered_hits++;
+                                                    if (opponent->grid[i1][j1 + dy] == -1)
+                                                        covered_misses++;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                for (int dx = 0; dx < ships[1]; ++dx)
+                                                {
+                                                    if (opponent->grid[i1 + dx][j1] < -1)
+                                                        covered_hits++;
+                                                    if (opponent->grid[i1 + dx][j1] == -1)
+                                                        covered_misses++;
+                                                }
+                                            }
+                                            if (covered_hits == hit_count && covered_misses != 0)
+                                            {
+                                                if (dir0 == 0)
+                                                {
+                                                    for (int dy = 0; dy < ships[0]; ++dy)
+                                                    {
+                                                        hm[i0][j0 + dy]++;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    for (int dx = 0; dx < ships[0]; ++dx)
+                                                    {
+                                                        hm[i0 + dx][j0]++;
+                                                    }
+                                                }
+
+                                                if (dir1 == 0)
+                                                {
+                                                    for (int dy = 0; dy < ships[1]; ++dy)
+                                                    {
+                                                        hm[i1][j1 + dy]++;
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    for (int dx = 0; dx < ships[1]; ++dx)
+                                                    {
+                                                        hm[i1 + dx][j1]++;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        // remove the ships
+                                        remove_ship(dummy, i0, j0, ships[0], dir0);
+                                        remove_ship(dummy, i1, j1, ships[1], dir1);
+                                    }
+                                    else
+                                    {
+                                        for (int i2 = 0; i2 < GRID_SIZE; ++i2)
+                                        {
+                                            for (int j2 = 0; j2 < GRID_SIZE; ++j2)
+                                            {
+                                                for (int dir2 = 0; dir2 < 2; ++dir2)
+                                                {
+                                                    int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1) + add_ship(dummy, i2, j2, ships[2], dir2);
+                                                    if (result == 3)
+                                                    {
+                                                        int covered_hits = 0;
+                                                        int covered_misses = 0;
+                                                        if (dir0 == 0)
+                                                        {
+                                                            for (int dy = 0; dy < ships[0]; ++dy)
+                                                            {
+                                                                if (opponent->grid[i0][j0 + dy] < -1)
+                                                                    covered_hits++;
+                                                                if (opponent->grid[i0][j0 + dy] == -1)
+                                                                    covered_misses++;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            for (int dx = 0; dx < ships[0]; ++dx)
+                                                            {
+                                                                if (opponent->grid[i0 + dx][j0] < -1)
+                                                                    covered_hits++;
+                                                                if (opponent->grid[i0 + dx][j0] == -1)
+                                                                    covered_misses++;
+                                                            }
+                                                        }
+
+                                                        if (dir1 == 0)
+                                                        {
+                                                            for (int dy = 0; dy < ships[1]; ++dy)
+                                                            {
+                                                                if (opponent->grid[i1][j1 + dy] < -1)
+                                                                    covered_hits++;
+                                                                if (opponent->grid[i1][j1 + dy] == -1)
+                                                                    covered_misses++;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            for (int dx = 0; dx < ships[1]; ++dx)
+                                                            {
+                                                                if (opponent->grid[i1 + dx][j1] < -1)
+                                                                    covered_hits++;
+                                                                if (opponent->grid[i1 + dx][j1] == -1)
+                                                                    covered_misses++;
+                                                            }
+                                                        }
+
+                                                        if (dir2 == 0)
+                                                        {
+                                                            for (int dy = 0; dy < ships[2]; ++dy)
+                                                            {
+                                                                if (opponent->grid[i2][j2 + dy] < -1)
+                                                                    covered_hits++;
+                                                                if (opponent->grid[i2][j2 + dy] == -1)
+                                                                    covered_misses++;
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            for (int dx = 0; dx < ships[2]; ++dx)
+                                                            {
+                                                                if (opponent->grid[i2 + dx][j2] < -1)
+                                                                    covered_hits++;
+                                                                if (opponent->grid[i2 + dx][j2] == -1)
+                                                                    covered_misses++;
+                                                            }
+                                                        }
+                                                        if (covered_hits == hit_count && covered_misses != 0)
+                                                        {
+                                                            if (dir0 == 0)
+                                                            {
+                                                                for (int dy = 0; dy < ships[0]; ++dy)
+                                                                {
+                                                                    hm[i0][j0 + dy]++;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                for (int dx = 0; dx < ships[0]; ++dx)
+                                                                {
+                                                                    hm[i0 + dx][j0]++;
+                                                                }
+                                                            }
+
+                                                            if (dir1 == 0)
+                                                            {
+                                                                for (int dy = 0; dy < ships[1]; ++dy)
+                                                                {
+                                                                    hm[i1][j1 + dy]++;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                for (int dx = 0; dx < ships[1]; ++dx)
+                                                                {
+                                                                    hm[i1 + dx][j1]++;
+                                                                }
+                                                            }
+
+                                                            if (dir2 == 0)
+                                                            {
+                                                                for (int dy = 0; dy < ships[2]; ++dy)
+                                                                {
+                                                                    hm[i2][j2 + dy]++;
+                                                                }
+                                                            }
+                                                            else
+                                                            {
+                                                                for (int dx = 0; dx < ships[2]; ++dx)
+                                                                {
+                                                                    hm[i2 + dx][j2]++;
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                    // remove the ships
+                                                    remove_ship(dummy, i0, j0, ships[0], dir0);
+                                                    remove_ship(dummy, i1, j1, ships[1], dir1);
+                                                    remove_ship(dummy, i2, j2, ships[2], dir2);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        int triplet[4][3] = {{3, 4, 5}, {2, 4, 5}, {2, 3, 5}, {2, 3, 4}};
+        for (int removed = 0; removed < NUM_SHIPS; ++removed)
+        {
+            int *ships = triplet[removed];
+            for (int i0 = 0; i0 < GRID_SIZE; ++i0)
+            {
+                for (int j0 = 0; j0 < GRID_SIZE; ++j0)
+                {
+                    for (int dir0 = 0; dir0 < 2; dir0++)
+                    {
+                        for (int i1 = 0; i1 < GRID_SIZE; ++i1)
+                        {
+                            for (int j1 = 0; j1 < GRID_SIZE; ++j1)
+                            {
+                                for (int dir1 = 0; dir1 < 2; ++dir1)
+                                {
+                                    for (int i2 = 0; i2 < GRID_SIZE; ++i2)
+                                    {
+                                        for (int j2 = 0; j2 < GRID_SIZE; ++j2)
+                                        {
+                                            for (int dir2 = 0; dir2 < 2; ++dir2)
+                                            {
+                                                int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1) + add_ship(dummy, i2, j2, ships[2], dir2);
+                                                if (result == 3)
+                                                {
+                                                    int covered_hits = 0;
+                                                    int covered_misses = 0;
+                                                    if (dir0 == 0)
+                                                    {
+                                                        for (int dy = 0; dy < ships[0]; ++dy)
+                                                        {
+                                                            if (opponent->grid[i0][j0 + dy] < -1)
+                                                                covered_hits++;
+                                                            if (opponent->grid[i0][j0 + dy] == -1)
+                                                                covered_misses++;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        for (int dx = 0; dx < ships[0]; ++dx)
+                                                        {
+                                                            if (opponent->grid[i0 + dx][j0] < -1)
+                                                                covered_hits++;
+                                                            if (opponent->grid[i0 + dx][j0] == -1)
+                                                                covered_misses++;
+                                                        }
+                                                    }
+
+                                                    if (dir1 == 0)
+                                                    {
+                                                        for (int dy = 0; dy < ships[1]; ++dy)
+                                                        {
+                                                            if (opponent->grid[i1][j1 + dy] < -1)
+                                                                covered_hits++;
+                                                            if (opponent->grid[i1][j1 + dy] == -1)
+                                                                covered_misses++;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        for (int dx = 0; dx < ships[1]; ++dx)
+                                                        {
+                                                            if (opponent->grid[i1 + dx][j1] < -1)
+                                                                covered_hits++;
+                                                            if (opponent->grid[i1 + dx][j1] == -1)
+                                                                covered_misses++;
+                                                        }
+                                                    }
+
+                                                    if (dir2 == 0)
+                                                    {
+                                                        for (int dy = 0; dy < ships[2]; ++dy)
+                                                        {
+                                                            if (opponent->grid[i2][j2 + dy] < -1)
+                                                                covered_hits++;
+                                                            if (opponent->grid[i2][j2 + dy] == -1)
+                                                                covered_misses++;
+                                                        }
+                                                    }
+                                                    else
+                                                    {
+                                                        for (int dx = 0; dx < ships[2]; ++dx)
+                                                        {
+                                                            if (opponent->grid[i2 + dx][j2] < -1)
+                                                                covered_hits++;
+                                                            if (opponent->grid[i2 + dx][j2] == -1)
+                                                                covered_misses++;
+                                                        }
+                                                    }
+                                                    if (covered_hits == hit_count && covered_misses != 0)
+                                                    {
+                                                        if (dir0 == 0)
+                                                        {
+                                                            for (int dy = 0; dy < ships[0]; ++dy)
+                                                            {
+                                                                hm[i0][j0 + dy] += activation(covered_hits, hit_count);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            for (int dx = 0; dx < ships[0]; ++dx)
+                                                            {
+                                                                hm[i0 + dx][j0] += activation(covered_hits, hit_count);
+                                                            }
+                                                        }
+
+                                                        if (dir1 == 0)
+                                                        {
+                                                            for (int dy = 0; dy < ships[1]; ++dy)
+                                                            {
+                                                                hm[i1][j1 + dy] += activation(covered_hits, hit_count);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            for (int dx = 0; dx < ships[1]; ++dx)
+                                                            {
+                                                                hm[i1 + dx][j1] += activation(covered_hits, hit_count);
+                                                            }
+                                                        }
+
+                                                        if (dir2 == 0)
+                                                        {
+                                                            for (int dy = 0; dy < ships[2]; ++dy)
+                                                            {
+                                                                hm[i2][j2 + dy] += activation(covered_hits, hit_count);
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            for (int dx = 0; dx < ships[2]; ++dx)
+                                                            {
+                                                                hm[i2 + dx][j2] += activation(covered_hits, hit_count);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                // remove the ships
+                                                remove_ship(dummy, i0, j0, ships[0], dir0);
+                                                remove_ship(dummy, i1, j1, ships[1], dir1);
+                                                remove_ship(dummy, i2, j2, ships[2], dir2);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    free(dummy);
+    return hm;
 }
 
 /*
@@ -30,7 +512,8 @@ stores the intended move and coordinates in x, y, move_number
 */
 void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_number, int turn, int *latest_bot_radar_hit)
 {
-    int **hm = get_heat_map(opponent); // heatmap
+    printf("GOT HEATMAP SUCCESSFULLY!!!!!!");
+    double **hm = get_heat_map(opponent); // heatmap
     int bot_has_all_ships = 1;
     for (int i = 0; i < 4; ++i)
     {
@@ -40,9 +523,11 @@ void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_numbe
             break;
         }
     }
+
     if (bot->torpedo > 0)
     {
-        int bestRow = 0, bestRowSum = 0;
+        int bestRow = 0;
+        double bestRowSum = 0;
         for (int i = 0; i < 10; ++i)
         {
             int rowSum = 0;
@@ -54,7 +539,8 @@ void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_numbe
                 bestRow = i;
             }
         }
-        int bestCol = 0, bestColSum = 0;
+        int bestCol = 0;
+        double bestColSum = 0;
         for (int i = 0; i < 10; ++i)
         {
             int colSum = 0;
@@ -83,7 +569,8 @@ void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_numbe
     }
     else if (bot->artillery > 0 || (bot->radar_sweep > 0 && bot_has_all_ships && latest_bot_radar_hit[0] == -1))
     {
-        int bestX = 0, bestY = 0, bestSum = hm[0][0] + hm[0][1] + hm[1][0] + hm[1][1];
+        int bestX = 0, bestY = 0;
+        double bestSum = hm[0][0] + hm[0][1] + hm[1][0] + hm[1][1];
         for (int i = 0; i < 9; ++i)
             for (int j = 0; j < 9; ++j)
             {
@@ -123,7 +610,8 @@ void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_numbe
     else
     {
         // just do a normal hit
-        int bestX = 0, bestY = 0, bestSum = hm[0][0];
+        int bestX = 0, bestY = 0;
+        double bestSum = hm[0][0];
         for (int i = 0; i < 10; ++i)
             for (int j = 0; j < 10; ++j)
                 if (hm[i][j] > bestSum)

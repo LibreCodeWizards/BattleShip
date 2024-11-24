@@ -6,6 +6,8 @@ void bot_configure_ships(Player *bot);
 
 void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_number, int turn, int *latest_bot_radar_hit);
 
-int **get_heat_map(Player *opponent);
+double **get_heat_map(Player *opponent);
+
+double activation(double x, double y);
 
 #endif
