@@ -375,7 +375,6 @@ int add_ship(const Player *p, const int x, const int y, const int ship_size, con
         return 0;
 
     // No overlap or out of bound, so we can place
-
     if (orientation == 0)
     {
         for (int i = 0; i < ship_size; ++i)

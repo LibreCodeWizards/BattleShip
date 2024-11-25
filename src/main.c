@@ -6,6 +6,7 @@
 int main()
 {
     Player *player[2] = {initialize_player(), initialize_player()};
+    Player *dummy = initialize_player();
 
     int exit = 0;
 
@@ -81,19 +82,15 @@ int main()
                 break;
             }
             print_configuration(player[p]);
-            printf("AFTER WE PRINT CONFIGURATION");
         }
-        // WTF IS GOING ON HERE????????
-        printf("BEFORE CLEAR SCREEN");
+
         clear_screen();
-        printf("AFTER CLEAR SCREEN");
 
         if (mode == 0)
         {
             // get bot's configuration
             // NOTE: bot is always player[1], human is always player[0]
             bot_configure_ships(player[1]);
-            printf("CONFIGURED BOT SHIPS");
             break;
         }
     }
@@ -105,7 +102,6 @@ int main()
     int latest_radar_bot_hit[2] = {-1, -1};
     while (!exit)
     {
-        printf("ENTERED GAME LOOP");
         turn++;
         int opponent = current_player ^ 1;
         int move_number;
@@ -199,8 +195,7 @@ int main()
         else
         {
             // TODO: get bot move
-            printf("ENTERED CONDITION WHERE BOT PLAYs");
-            get_bot_move(player[current_player], player[opponent], &x, &y, &move_number, turn, latest_radar_bot_hit);
+            get_bot_move(player[current_player], player[opponent], dummy, &x, &y, &move_number, turn, latest_radar_bot_hit);
 
             const char *move_name = MOVE_LIST[move_number];
             char col = 'A' + y;
@@ -238,7 +233,7 @@ int main()
         if (move_number == 0)
         {
             const int hit = fire(player[current_player], player[opponent], x, y);
-            if (mode == 0 && current_player == 1 && hit)
+            if (mode == 0 && current_player == 1 && hit && latest_radar_bot_hit[0] != -1)
             {
                 latest_radar_bot_hit[0] = latest_radar_bot_hit[1] = -1;
             }
@@ -278,6 +273,10 @@ int main()
                     latest_radar_bot_hit[0] = x;
                     latest_radar_bot_hit[1] = y;
                 }
+                else
+                {
+                    mark_radar_miss(dummy, x, y);
+                }
             }
         }
         else if (move_number == 2)
@@ -316,7 +315,6 @@ int main()
         }
 
         printf("\n");
-        printf("BIG MEOW");
 
         // Check game over
         if (is_game_over(player[opponent]))
@@ -326,7 +324,6 @@ int main()
         }
 
         // Turn mechanic
-        printf("CHANGED TURN SUCCESSFULLY!");
         current_player = current_player ^ 1;
     }
 
@@ -337,8 +334,12 @@ int main()
     free(player[1]->grid);
     free(player[1]->visible_grid);
     free(player[1]->ships);
+    free(dummy->grid);
+    free(dummy->visible_grid);
+    free(dummy->ships);
 
     // Free player pointers themselves
     free(player[0]);
     free(player[1]);
+    free(dummy);
 }

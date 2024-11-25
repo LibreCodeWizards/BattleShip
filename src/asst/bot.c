@@ -3,6 +3,25 @@
 #include "bot.h"
 #include "asst.h"
 
+void print_heatmap(double **hm)
+{
+    for (int i = 0; i < GRID_SIZE; ++i)
+    {
+        printf("\t%c", 'A' + i);
+    }
+    printf("\n");
+
+    for (int i = 0; i < GRID_SIZE; ++i)
+    {
+        printf("%d\t", i + 1);
+        for (int j = 0; j < GRID_SIZE; ++j)
+        {
+            printf("%.2f\t", hm[i][j]);
+        }
+        printf("\n");
+    }
+}
+
 void bot_configure_ships(Player *bot)
 {
     for (int ship = 2; ship <= 5; ++ship)
@@ -26,8 +45,19 @@ double activation(double x, double y)
     return ((x + 1) / (y + 1)) + (1 / (y - x + 1));
 }
 
+void mark_radar_miss(Player *dummy, const int x, const int y)
+{
+    for (int i = x; i < min(x + 2, GRID_SIZE); ++i)
+    {
+        for (int j = y; j < min(y + 2, GRID_SIZE); ++j)
+        {
+            dummy->grid[i][j] = 1;
+        }
+    }
+}
+
 // TODO: finish Later
-double **get_heat_map(Player *opponent)
+double **get_heat_map(Player *opponent, Player *dummy)
 {
     // PLEASE DO NOT TRY TO REFORMAT THIS CODE
 
@@ -42,7 +72,6 @@ double **get_heat_map(Player *opponent)
     }
 
     double **hm = initialize_double_grid();
-    Player *dummy = initialize_player();
     // loop over opponent ship healths, if not 0, make corresponding index its size
     int ships[] = {-1, -1, -1, -1};
     for (int i = 0; i < NUM_SHIPS; ++i)
@@ -96,7 +125,7 @@ double **get_heat_map(Player *opponent)
                                         covered_misses++;
                                 }
                             }
-                            if (covered_hits == hit_count && covered_misses != 0)
+                            if (covered_hits == hit_count && covered_misses == 0)
                             {
                                 if (dir0 == 0)
                                 {
@@ -173,7 +202,7 @@ double **get_heat_map(Player *opponent)
                                                         covered_misses++;
                                                 }
                                             }
-                                            if (covered_hits == hit_count && covered_misses != 0)
+                                            if (covered_hits == hit_count && covered_misses == 0)
                                             {
                                                 if (dir0 == 0)
                                                 {
@@ -285,7 +314,7 @@ double **get_heat_map(Player *opponent)
                                                                     covered_misses++;
                                                             }
                                                         }
-                                                        if (covered_hits == hit_count && covered_misses != 0)
+                                                        if (covered_hits == hit_count && covered_misses == 0)
                                                         {
                                                             if (dir0 == 0)
                                                             {
@@ -354,12 +383,15 @@ double **get_heat_map(Player *opponent)
         int triplet[4][3] = {{3, 4, 5}, {2, 4, 5}, {2, 3, 5}, {2, 3, 4}};
         for (int removed = 0; removed < NUM_SHIPS; ++removed)
         {
-            int *ships = triplet[removed];
+            int ships[3];
+            for (int i = 0; i < 3; ++i)
+                ships[i] = triplet[removed][i];
+
             for (int i0 = 0; i0 < GRID_SIZE; ++i0)
             {
                 for (int j0 = 0; j0 < GRID_SIZE; ++j0)
                 {
-                    for (int dir0 = 0; dir0 < 2; dir0++)
+                    for (int dir0 = 0; dir0 < 2; ++dir0)
                     {
                         for (int i1 = 0; i1 < GRID_SIZE; ++i1)
                         {
@@ -373,6 +405,7 @@ double **get_heat_map(Player *opponent)
                                         {
                                             for (int dir2 = 0; dir2 < 2; ++dir2)
                                             {
+                                                // TODO: fix this (result is always giving 0)
                                                 int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1) + add_ship(dummy, i2, j2, ships[2], dir2);
                                                 if (result == 3)
                                                 {
@@ -440,20 +473,22 @@ double **get_heat_map(Player *opponent)
                                                                 covered_misses++;
                                                         }
                                                     }
-                                                    if (covered_hits == hit_count && covered_misses != 0)
+                                                    if (covered_misses == 0)
                                                     {
                                                         if (dir0 == 0)
                                                         {
                                                             for (int dy = 0; dy < ships[0]; ++dy)
                                                             {
-                                                                hm[i0][j0 + dy] += activation(covered_hits, hit_count);
+                                                                // hm[i0][j0 + dy] += activation(covered_hits, hit_count);
+                                                                hm[i0][j0 + dy]++;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             for (int dx = 0; dx < ships[0]; ++dx)
                                                             {
-                                                                hm[i0 + dx][j0] += activation(covered_hits, hit_count);
+                                                                // hm[i0 + dx][j0] += activation(covered_hits, hit_count);
+                                                                hm[i0 + dx][j0]++;
                                                             }
                                                         }
 
@@ -461,14 +496,16 @@ double **get_heat_map(Player *opponent)
                                                         {
                                                             for (int dy = 0; dy < ships[1]; ++dy)
                                                             {
-                                                                hm[i1][j1 + dy] += activation(covered_hits, hit_count);
+                                                                // hm[i1][j1 + dy] += activation(covered_hits, hit_count);
+                                                                hm[i1][j1 + dy]++;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             for (int dx = 0; dx < ships[1]; ++dx)
                                                             {
-                                                                hm[i1 + dx][j1] += activation(covered_hits, hit_count);
+                                                                // hm[i1 + dx][j1] += activation(covered_hits, hit_count);
+                                                                hm[i1 + dx][j1]++;
                                                             }
                                                         }
 
@@ -476,14 +513,16 @@ double **get_heat_map(Player *opponent)
                                                         {
                                                             for (int dy = 0; dy < ships[2]; ++dy)
                                                             {
-                                                                hm[i2][j2 + dy] += activation(covered_hits, hit_count);
+                                                                // hm[i2][j2 + dy] += activation(covered_hits, hit_count);
+                                                                hm[i2][j2 + dy]++;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             for (int dx = 0; dx < ships[2]; ++dx)
                                                             {
-                                                                hm[i2 + dx][j2] += activation(covered_hits, hit_count);
+                                                                // hm[i2 + dx][j2] += activation(covered_hits, hit_count);
+                                                                hm[i2 + dx][j2]++;
                                                             }
                                                         }
                                                     }
@@ -503,17 +542,28 @@ double **get_heat_map(Player *opponent)
             }
         }
     }
-    free(dummy);
+
+    // Dont allow bot to choose cell that has already been hit
+    for (int i = 0; i < GRID_SIZE; ++i)
+    {
+        for (int j = 0; j < GRID_SIZE; ++j)
+        {
+            if (opponent->grid[i][j] < 0)
+            {
+                hm[i][j] = -1;
+            }
+        }
+    }
     return hm;
 }
 
 /*
 stores the intended move and coordinates in x, y, move_number
 */
-void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_number, int turn, int *latest_bot_radar_hit)
+void get_bot_move(Player *bot, Player *opponent, Player *dummy, int *x, int *y, int *move_number, int turn, int *latest_bot_radar_hit)
 {
-    printf("GOT HEATMAP SUCCESSFULLY!!!!!!");
-    double **hm = get_heat_map(opponent); // heatmap
+    double **hm = get_heat_map(opponent, dummy); // heatmap
+    print_heatmap(hm);
     int bot_has_all_ships = 1;
     for (int i = 0; i < 4; ++i)
     {
@@ -567,7 +617,7 @@ void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_numbe
 
         return;
     }
-    else if (bot->artillery > 0 || (bot->radar_sweep > 0 && bot_has_all_ships && latest_bot_radar_hit[0] == -1))
+    else if (bot->artillery > 0)
     {
         int bestX = 0, bestY = 0;
         double bestSum = hm[0][0] + hm[0][1] + hm[1][0] + hm[1][1];
@@ -587,7 +637,14 @@ void get_bot_move(Player *bot, Player *opponent, int *x, int *y, int *move_numbe
         *y = bestY;
 
         // If we have artillary, choose it over radar sweep
-        *move_number = bot->artillery > 0 ? 3 : 1;
+        *move_number = 3;
+        return;
+    }
+    else if (bot->radar_sweep > 0 && bot_has_all_ships && latest_bot_radar_hit[0] == -1)
+    {
+        *x = _rand(9);
+        *y = _rand(9);
+        *move_number = 1;
         return;
     }
     // if latest_bot_radar_hit isn't {-1,-1}
