@@ -402,24 +402,31 @@ int add_ship(const Player *p, const int x, const int y, const int ship_size, con
 
 void remove_ship(const Player *p, int x, int y, const int ship_size, const int orientation)
 {
-    if (!p || p == NULL || !can_fit(p, x, y, ship_size, orientation))
+    if (!p || p == NULL || (orientation == 1 && (x + ship_size) - 1 >= GRID_SIZE) || (orientation == 0 && (y + ship_size) - 1 >= GRID_SIZE))
     {
         return;
     }
+
     if (orientation == 0)
     {
         for (int i = y; i < y + ship_size; i++)
         {
-            p->grid[x][i] = 0;
-            p->visible_grid[x][i] = 0;
+            if (p->grid[x][i] > 1)
+            {
+                p->grid[x][i] = 0;
+                p->visible_grid[x][i] = 0;
+            }
         }
     }
     else
     {
         for (int i = x; i < x + ship_size; i++)
         {
-            p->grid[i][y] = 0;
-            p->visible_grid[i][y] = 0;
+            if (p->grid[i][y] > 1)
+            {
+                p->grid[i][y] = 0;
+                p->visible_grid[i][y] = 0;
+            }
         }
     }
 }
@@ -443,7 +450,7 @@ int is_game_over(const Player *defender)
 
 /*
 Requires: nothing
-Effects: Creates a GRID_SIZExGRIZ_SIZE grid on the heap and returns a pointer to it
+Effects: Creates a GRID_SIZExGRIZ_SIZE grid of integers on the heap and returns a pointer to it
 */
 int **initialize_grid()
 {
@@ -459,6 +466,10 @@ int **initialize_grid()
     return grid;
 }
 
+/*
+Requires: nothing
+Effects: creates a GRID_SIZExGRID_SIZE grid of doubles on the heap and returns the pointer to it
+*/
 double **initialize_double_grid()
 {
     double **grid = (double **)malloc(GRID_SIZE * sizeof(double *));
@@ -506,16 +517,28 @@ int get_column(const char square[4])
     return square[0] - 'A';
 }
 
+/*
+Requires: nothing
+Effects: returns the column as an integer
+*/
 int get_row(const char square[4])
 {
     return square[1] != '1' ? square[1] - '1' : (square[2] == '0' ? 9 : 0);
 }
 
+/*
+Requires: square contains a valid torpedo coordinate (passed through is_valid_torped_row)
+Effects: returns the torpedo row as an integer
+*/
 int get_torpedo_row(const char square[4])
 {
     return square[0] != '1' ? square[0] - '1' : (square[1] == '0' ? 9 : 0);
 }
 
+/*
+Requires: nothing
+Effects: returns true if the column of the square entered is valid and within bounds, else false
+*/
 int is_valid_column(const char square[4])
 {
     if (!square)
@@ -523,6 +546,10 @@ int is_valid_column(const char square[4])
     return 'A' <= square[0] && 'J' >= square[0];
 }
 
+/*
+Requires: nothing
+Effects: returns true if the row of the square entered is valid and within bounds, else false
+*/
 int is_valid_row(const char square[4])
 {
     if (!square)
@@ -533,6 +560,10 @@ int is_valid_row(const char square[4])
              square[2] == '\0'));
 }
 
+/*
+Requires: nothing
+Effects: returns true if the row of the square entered is valid and within bounds, else false
+*/
 int is_valid_torpedo_row(const char square[4])
 {
     if (!square)
@@ -543,13 +574,19 @@ int is_valid_torpedo_row(const char square[4])
              square[1] == '\0'));
 }
 
-// Changed bitwise AND to logical AND, this saves time when executed
-// Once one condition is not met it short circuits instead of evaluating all other operations
+/*
+Requires: nothing
+Effects: returns true if the square has a valid row and column, else false
+*/
 int is_valid_square_input(const char square[4])
 {
     return is_valid_row(square) && is_valid_column(square);
 }
 
+/*
+Requires: nothing
+Effects: returns the number of the move if move contains a valid move (as defined by MOVE_LIST), else -1
+*/
 int get_move(const char move[10])
 {
     if (!move)
@@ -639,6 +676,10 @@ int get_move(const char move[10])
     return -1;
 }
 
+/*
+Requires: nothing
+Effects: returns the number of the orientation if orientation contains a valid orientation (as defined in ORIENTATION), else -1
+*/
 int get_orientation(const char orientation[11])
 {
     if (orientation == NULL)
@@ -677,7 +718,10 @@ int get_orientation(const char orientation[11])
     return -1;
 }
 
-// Generates a random number
+/*
+Requires: range is positive
+Effects: returns a random integer in [0, range)
+*/
 int _rand(const int range)
 {
     // Since we are not allowed to use any libraries we will generate
@@ -690,6 +734,10 @@ int _rand(const int range)
     return res;
 }
 
+/*
+Requires: nothing
+Effects: prints the number of availabe moves for each move of the player
+*/
 void print_available_moves(const Player *p)
 {
     printf("Available moves:\n");

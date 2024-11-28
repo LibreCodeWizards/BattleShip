@@ -3,6 +3,10 @@
 #include "bot.h"
 #include "asst.h"
 
+/*
+Requires: nothing
+Effects: prints the heatmap of the bot (mainly used for debugging)
+*/
 void print_heatmap(double **hm)
 {
     for (int i = 0; i < GRID_SIZE; ++i)
@@ -22,6 +26,10 @@ void print_heatmap(double **hm)
     }
 }
 
+/*
+Requires: nothing
+Effects: randomly places the 4 ships on the bot's board
+*/
 void bot_configure_ships(Player *bot)
 {
     for (int ship = 2; ship <= 5; ++ship)
@@ -40,6 +48,10 @@ void bot_configure_ships(Player *bot)
     }
 }
 
+/*
+Requires: nothing
+Effects: gives modified values representing how good the configuration of ships is
+*/
 double activation(double x, double y)
 {
     return ((x + 1) / (y + 1)) + (1 / (y - x + 1));
@@ -56,7 +68,10 @@ void mark_radar_miss(Player *dummy, const int x, const int y)
     }
 }
 
-// TODO: finish Later
+/*
+Requires: nothing
+Effects: creates a probablity heatmap of squares that are most likely to have ships
+*/
 double **get_heat_map(Player *opponent, Player *dummy)
 {
     // PLEASE DO NOT TRY TO REFORMAT THIS CODE
@@ -378,6 +393,10 @@ double **get_heat_map(Player *opponent, Player *dummy)
             }
         }
     }
+    // Case where opponent has 4 ships
+    // We cant brute force it because it is too expensive so instead
+    // Brute force ever possible combination of only 3 ships, alternating the removed ship each time
+    // then add them all together. This gets a good enough approximation of true heatmap
     else
     {
         int triplet[4][3] = {{3, 4, 5}, {2, 4, 5}, {2, 3, 5}, {2, 3, 4}};
@@ -406,7 +425,9 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                             for (int dir2 = 0; dir2 < 2; ++dir2)
                                             {
                                                 // TODO: fix this (result is always giving 0)
-                                                int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1) + add_ship(dummy, i2, j2, ships[2], dir2);
+                                                int result = add_ship(dummy, i0, j0, ships[0], dir0);
+                                                result += add_ship(dummy, i1, j1, ships[1], dir1);
+                                                result += add_ship(dummy, i2, j2, ships[2], dir2);
                                                 if (result == 3)
                                                 {
                                                     int covered_hits = 0;
@@ -475,6 +496,7 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                                     }
                                                     if (covered_misses == 0)
                                                     {
+                                                        // TODO: use activation function
                                                         if (dir0 == 0)
                                                         {
                                                             for (int dy = 0; dy < ships[0]; ++dy)
@@ -558,7 +580,8 @@ double **get_heat_map(Player *opponent, Player *dummy)
 }
 
 /*
-stores the intended move and coordinates in x, y, move_number
+Requires: latest_bot_radar_hit be an integer array of size 2
+Effects: stores the bot's intended move in move_number, and its coordinates in x and y
 */
 void get_bot_move(Player *bot, Player *opponent, Player *dummy, int *x, int *y, int *move_number, int turn, int *latest_bot_radar_hit)
 {
