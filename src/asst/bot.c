@@ -424,7 +424,6 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                         {
                                             for (int dir2 = 0; dir2 < 2; ++dir2)
                                             {
-                                                // TODO: fix this (result is always giving 0)
                                                 int result = add_ship(dummy, i0, j0, ships[0], dir0);
                                                 result += add_ship(dummy, i1, j1, ships[1], dir1);
                                                 result += add_ship(dummy, i2, j2, ships[2], dir2);
@@ -496,21 +495,20 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                                     }
                                                     if (covered_misses == 0)
                                                     {
-                                                        // TODO: use activation function
                                                         if (dir0 == 0)
                                                         {
                                                             for (int dy = 0; dy < ships[0]; ++dy)
                                                             {
-                                                                // hm[i0][j0 + dy] += activation(covered_hits, hit_count);
-                                                                hm[i0][j0 + dy]++;
+                                                                hm[i0][j0 + dy] += activation(covered_hits, hit_count);
+                                                                // hm[i0][j0 + dy]++;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             for (int dx = 0; dx < ships[0]; ++dx)
                                                             {
-                                                                // hm[i0 + dx][j0] += activation(covered_hits, hit_count);
-                                                                hm[i0 + dx][j0]++;
+                                                                hm[i0 + dx][j0] += activation(covered_hits, hit_count);
+                                                                // hm[i0 + dx][j0]++;
                                                             }
                                                         }
 
@@ -518,16 +516,16 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                                         {
                                                             for (int dy = 0; dy < ships[1]; ++dy)
                                                             {
-                                                                // hm[i1][j1 + dy] += activation(covered_hits, hit_count);
-                                                                hm[i1][j1 + dy]++;
+                                                                hm[i1][j1 + dy] += activation(covered_hits, hit_count);
+                                                                // hm[i1][j1 + dy]++;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             for (int dx = 0; dx < ships[1]; ++dx)
                                                             {
-                                                                // hm[i1 + dx][j1] += activation(covered_hits, hit_count);
-                                                                hm[i1 + dx][j1]++;
+                                                                hm[i1 + dx][j1] += activation(covered_hits, hit_count);
+                                                                // hm[i1 + dx][j1]++;
                                                             }
                                                         }
 
@@ -535,16 +533,16 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                                         {
                                                             for (int dy = 0; dy < ships[2]; ++dy)
                                                             {
-                                                                // hm[i2][j2 + dy] += activation(covered_hits, hit_count);
-                                                                hm[i2][j2 + dy]++;
+                                                                hm[i2][j2 + dy] += activation(covered_hits, hit_count);
+                                                                // hm[i2][j2 + dy]++;
                                                             }
                                                         }
                                                         else
                                                         {
                                                             for (int dx = 0; dx < ships[2]; ++dx)
                                                             {
-                                                                // hm[i2 + dx][j2] += activation(covered_hits, hit_count);
-                                                                hm[i2 + dx][j2]++;
+                                                                hm[i2 + dx][j2] += activation(covered_hits, hit_count);
+                                                                // hm[i2 + dx][j2]++;
                                                             }
                                                         }
                                                     }

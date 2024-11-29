@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include "asst.h"
 
+#define MULTIPLIER 48271
+int seed_diff = 0;
+
 const char *ORIENTATION[2] =
     {
         "vertical",
@@ -724,14 +727,17 @@ Effects: returns a random integer in [0, range)
 */
 int _rand(const int range)
 {
-    // Since we are not allowed to use any libraries we will generate
-    // a random number by allocating a random memory address in the
-    // memory using malloc, we will use the garbage value as a rand.
-
+    // Use a random memory address as seed for the psuedo random number generator
     void *temp = malloc(1);
-    int res = (((int)temp) / 7) % range;
+    int res = (((int)temp) / 7);
     free(temp);
-    return res;
+
+    // Use the seed difference to still get psuedo random behavior on consecutive calls of the function
+    int random_result = (MULTIPLIER * res + seed_diff) % range;
+
+    // increment the seed diff to get psuedo random behavior
+    seed_diff++;
+    return random_result;
 }
 
 /*
