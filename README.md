@@ -51,7 +51,7 @@ To install CMake, visit the [CMake Download Page](https://cmake.org/download/) a
 #### On **Windows**:
 1. Install `make` using **MinGW**:
   - Download and install [MinGW](https://sourceforge.net/projects/mingw/).
-  - During the installation, ensure you select the `mingw32-make` package.
+  - During the installation, ensure you select the `mingw32-base` package.
 2. Alternatively, you can install **WSL** (Windows Subsystem for Linux):
   - Follow the [official guide](https://learn.microsoft.com/en-us/windows/wsl/install) to set up WSL.
   - Use a Linux distribution in WSL where `make` is included.
