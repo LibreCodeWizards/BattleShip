@@ -7,6 +7,7 @@
 
 #define GRID_SIZE 10
 #define NUM_SHIPS 4
+#define MULTIPLIER 48271
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -26,6 +27,8 @@ extern const char* ORIENTATION[2];
 extern const char* SHIP_NAMES[4];
 
 extern const char* MOVE_LIST[5];
+
+void print_logo();
 
 void clear_screen();
 

@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include "asst.h"
 
-#define MULTIPLIER 48271
-int seed_diff = 0;
-
 const char* ORIENTATION[2] =
 {
     "vertical",
@@ -32,13 +29,43 @@ const char* MOVE_LIST[5] =
     "Torpedo"
 };
 
+int seed_diff = 0;
+
+/*
+ * Requires: The Logo.txt file to be placed in the /src/asst/ directory
+ * and the src directory should be placed in the same directory of the game.
+ * Effects: Prints LibreCodeWizards Logo.
+ */
+void print_logo()
+{
+    // Open the file in read mode
+    FILE* file = fopen("src/asst/Logo.txt", "r");
+
+    // Check if file was opened successfully
+    if (file == NULL)
+        perror("Error opening file");
+
+    char line[1024]; // Buffer to hold each line of the file
+
+    // Read each line
+    while (fgets(line, sizeof(line), file))
+        printf("%s", line); // Print the line
+
+    fclose(file); // Close the file
+}
+
 /*
  * Requires: Nothing
- * Effects: Clears the screen for the next round
+ * Effects: Clears the screen for the next round.
  */
 void clear_screen()
 {
-    printf("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+#ifdef _WIN32
+    system("cls"); // Windows
+#else
+    system("clear"); // Linux/macOS
+#endif
+    fflush(stdout);
 }
 
 /*

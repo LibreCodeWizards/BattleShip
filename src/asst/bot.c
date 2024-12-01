@@ -587,6 +587,7 @@ void get_bot_move(Player* bot, Player* opponent, Player* dummy, int* x, int* y, 
                   int* latest_bot_radar_hit)
 {
     double** hm = get_heat_map(opponent, dummy); // heatmap
+    printf("The bot's current heatmap is:\n");
     print_heatmap(hm);
     int bot_has_all_ships = 1;
     for (int i = 0; i < 4; ++i)

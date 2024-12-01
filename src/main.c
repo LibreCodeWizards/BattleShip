@@ -5,6 +5,8 @@
 
 int main()
 {
+    printf("\033[0;32m"); // Makes the text green
+    print_logo();
     Player* player[2] = {initialize_player(), initialize_player()};
     Player* dummy = initialize_player();
 
@@ -51,10 +53,11 @@ int main()
             printf("Human Player, please configure your ships\n");
         }
         // prints the empty grid
-        print_configuration(player[1]);
+        //print_configuration(player[1]);
 
         for (int ship_size = 2; ship_size <= 5; ++ship_size)
         {
+            print_configuration(player[p]);
             while (1)
             {
                 printf("Enter coordinates of %s (Example: A2 vertical or C4 horizontal): ", SHIP_NAMES[ship_size - 2]);
@@ -81,7 +84,8 @@ int main()
 
                 break;
             }
-            print_configuration(player[p]);
+            clear_screen();
+            print_logo();
         }
 
         clear_screen();
@@ -201,6 +205,8 @@ int main()
             char row = x + 1;
 
             printf("The Bot Played: %s %c%d\n", move_name, col, row);
+            printf("Your current board is:\n");
+            print_grid(player[current_player], player[opponent], difficulty);
         }
 
         if (x == -1)
