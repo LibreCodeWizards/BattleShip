@@ -88,7 +88,7 @@ cd BattleShip
 ```
 
 #### 2. Run CMake
-Run CMake from the `build` directory to configure the project:
+Run CMake from the `Battleship` directory to configure the project:
 
 - **Linux/macOS**:
   ```bash
