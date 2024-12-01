@@ -347,4 +347,7 @@ int main()
     free(player[0]);
     free(player[1]);
     free(dummy);
+
+    getchar(); // Waits for user-input to exit
+    return 0;
 }
