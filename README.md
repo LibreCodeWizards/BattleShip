@@ -77,14 +77,7 @@ git clone https://github.com/LibreCodeWizards/BattleShip.git
 cd BattleShip
 ```
 
-#### 2. Create a Build Directory
-It’s best to separate build files from the source code. Create a `build` directory:
-```bash
-mkdir build
-cd build
-```
-
-#### 3. Run CMake
+#### 2. Run CMake
 Run CMake from the `build` directory to configure the project:
 
 - **Linux/macOS**:
@@ -97,7 +90,7 @@ Run CMake from the `build` directory to configure the project:
   cmake -G "MinGW Makefiles" ..
   ```
 
-#### 4. Compile the Game
+#### 3. Compile the Game
 Use `make` to compile the project:
 
 - **Linux/macOS**:
@@ -112,7 +105,7 @@ Use `make` to compile the project:
 
 ---
 
-### 5. Run the Game 🏁
+### 4. Run the Game 🏁
 
 After building the game, you can run it:
 
