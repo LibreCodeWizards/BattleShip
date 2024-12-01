@@ -50,11 +50,15 @@ To install CMake, visit the [CMake Download Page](https://cmake.org/download/) a
 
 #### On **Windows**:
 1. Install `make` using **MinGW**:
-  - Download and install [MinGW](https://sourceforge.net/projects/mingw/).
-  - During the installation, ensure you select the `mingw32-base` package.
-2. Alternatively, you can install **WSL** (Windows Subsystem for Linux):
-  - Follow the [official guide](https://learn.microsoft.com/en-us/windows/wsl/install) to set up WSL.
-  - Use a Linux distribution in WSL where `make` is included.
+   - Download and install [MinGW](https://sourceforge.net/projects/mingw/).
+   - During installation, ensure you select the `mingw32-base` package.
+2. **Set MinGW as a System Environment Variable**:
+   - Open the **Start Menu**, search for "Environment Variables," and select **Edit the system environment variables**.
+   - In the System Properties window, click the **Environment Variables** button.
+   - Under **System Variables**, click **New** and add:
+     - **Variable Name**: `MinGW`
+     - **Variable Value**: `C:\MinGW\bin` (or the path where MinGW is installed).
+   - Click **OK** to save and close the windows.
 
 ---
 
@@ -82,12 +86,12 @@ Run CMake from the `build` directory to configure the project:
 
 - **Linux/macOS**:
   ```bash
-  cmake ..
+  cmake .
   ```
 
 - **Windows**:
   ```bash
-  cmake -G "MinGW Makefiles" ..
+  cmake -G "MinGW Makefiles" .
   ```
 
 #### 3. Compile the Game
