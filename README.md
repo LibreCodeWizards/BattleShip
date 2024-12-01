@@ -2,6 +2,8 @@
 
 Welcome to the Battleship game project! This README will guide you through navigating the project, compiling it, and running the game.
 
+---
+
 ## Project Structure 📂
 
 The project is organized as follows:
@@ -10,15 +12,21 @@ The project is organized as follows:
   - **`main.c`**: The entry point and driver code for the game.
   - **`/src/ast`**: Contains essential game functions, including the bot logic and other core components.
 
+---
+
 ## How to Compile the Game ⚙️
 
-To make our lives easier (actually, this was done by me, @aza161), we decided to use **CMake** for managing the build process.
+We use **CMake** to manage the build process and **make** as the build tool. Follow the steps below to set up your environment and compile the game.
+
+---
 
 ### 1. Install CMake 🛠️
-To get started, you’ll need to install CMake. Visit the [CMake Download Page](https://cmake.org/download/) and download the appropriate version for your operating system.
+
+To install CMake, visit the [CMake Download Page](https://cmake.org/download/) and download the version appropriate for your operating system.
+
+---
 
 ### 2. Install `make` 📦
-You’ll also need to install the **make** tool to compile the project. Here are the instructions based on your operating system:
 
 #### On **Linux** (Ubuntu/Debian):
 1. Open a terminal and run:
@@ -26,65 +34,96 @@ You’ll also need to install the **make** tool to compile the project. Here are
    sudo apt update
    sudo apt install build-essential
    ```
-   This will install `make` and other required development tools.
 
 #### On **Linux** (Fedora/RHEL):
 1. Open a terminal and run:
    ```bash
    sudo dnf update
-   sudo dnf install build-essential
+   sudo dnf groupinstall "Development Tools"
    ```
-   This will install `make` and other required development tools.
 
 #### On **macOS**:
 1. Install the Xcode Command Line Tools, which include `make`, by running:
    ```bash
    xcode-select --install
    ```
-   If you already have Xcode installed, `make` should already be available.
 
 #### On **Windows**:
-1. On Windows, you can install `make` by installing **MinGW** or **Cygwin** (which provides a Unix-like environment). Alternatively, you can install **WSL** (Windows Subsystem for Linux) for a more native Unix experience.
-  - **MinGW**: Download and install [MinGW](https://sourceforge.net/projects/mingw/), and make sure to select the `mingw32-make` package.
-  - **WSL**: Follow the instructions to [install WSL](https://docs.microsoft.com/en-us/windows/wsl/install) and then use a Linux environment where `make` is already available.
+1. Install `make` using **MinGW**:
+  - Download and install [MinGW](https://sourceforge.net/projects/mingw/).
+  - During the installation, ensure you select the `mingw32-make` package.
+2. Alternatively, you can install **WSL** (Windows Subsystem for Linux):
+  - Follow the [official guide](https://learn.microsoft.com/en-us/windows/wsl/install) to set up WSL.
+  - Use a Linux distribution in WSL where `make` is included.
 
-### 3. Set Up Your Development Environment 🖥️
+---
 
-Make sure you have the necessary tools installed:
-- **C Compiler**: Make sure you have a C compiler (like GCC on Linux/macOS or MinGW on Windows).
-- **CMake**: Install CMake as mentioned in step 1.
+### 3. Set Up Your Environment 🖥️
+
+Make sure you have the following:
+- **C Compiler**: A C compiler such as GCC (on Linux/macOS) or MinGW (on Windows).
+- **CMake**: Installed as per step 1.
+
+---
 
 ### 4. Build the Game 🔨
 
-After installing the necessary tools, follow these steps to build the project:
+Follow these steps to build the game:
 
-1. **Clone the Repository**: Clone the repository to your local machine:
-   ```bash
-   git clone https://github.com/LibreCodeWizards/BattleShip.git
-   cd BattleShip
-   ```
+#### 1. Clone the Repository
+Clone the repository to your local machine:
+```bash
+git clone https://github.com/LibreCodeWizards/BattleShip.git
+cd BattleShip
+```
 
-2. **Create a Build Directory**: It's a good practice to keep build files separate from your source code. Create a `build` directory:
-   ```bash
-   mkdir build
-   cd build
-   ```
+#### 2. Create a Build Directory
+It’s best to separate build files from the source code. Create a `build` directory:
+```bash
+mkdir build
+cd build
+```
 
-3. **Run CMake**: Run CMake from within the `build` directory to generate the necessary build files:
-   ```bash
-   cmake ..
-   ```
+#### 3. Run CMake
+Run CMake from the `build` directory to configure the project:
 
-4. **Compile the Project**: After CMake configures the project, you can build it using `make`:
-   ```bash
-   make
-   ```
+- **Linux/macOS**:
+  ```bash
+  cmake ..
+  ```
+
+- **Windows**:
+  ```bash
+  cmake -G "MinGW Makefiles" ..
+  ```
+
+#### 4. Compile the Game
+Use `make` to compile the project:
+
+- **Linux/macOS**:
+  ```bash
+  make
+  ```
+
+- **Windows**:
+  ```bash
+  C:\MinGW\bin\mingw32-make.exe
+  ```
+
+---
 
 ### 5. Run the Game 🏁
 
-After building the game, you can run it with the following command:
-```bash
-./Battleship
-```
+After building the game, you can run it:
 
-This will start the game and you can begin playing.
+- **Linux/macOS**:
+  ```bash
+  ./Battleship
+  ```
+
+- **Windows**:
+  ```bash
+  Battleship.exe
+  ```
+
+Enjoy the game! 🚀
