@@ -580,9 +580,9 @@ double** get_heat_map(Player* opponent, Player* dummy)
 }
 
 /*
-Requires: latest_bot_radar_hit be an integer array of size 2
-Effects: stores the bot's intended move in move_number, and its coordinates in x and y
-*/
+ * Requires: latest_bot_radar_hit be an integer array of size 2
+ * Effects: stores the bot's intended move in move_number, and its coordinates in x and y
+ */
 void get_bot_move(Player* bot, Player* opponent, Player* dummy, int* x, int* y, int* move_number, int turn,
                   int* latest_bot_radar_hit)
 {
@@ -707,4 +707,6 @@ void get_bot_move(Player* bot, Player* opponent, Player* dummy, int* x, int* y, 
 
         return;
     }
+
+    return;
 }
