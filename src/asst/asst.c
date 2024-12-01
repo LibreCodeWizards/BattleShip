@@ -6,6 +6,9 @@
 #include <stdio.h>
 #include "asst.h"
 
+#define MULTIPLIER 48271
+int seed_diff = 0;
+
 const char* ORIENTATION[2] =
 {
     "vertical",
@@ -272,7 +275,7 @@ int artillery(Player* attacker, const Player* defender, const int x, const int y
  * Requires: Pos be within the range of the grid, orientation be 0 (horizontal) or 1 (vertical).
  * Effects: Fires at the specified row or column, prints the sunk ships if there are 1 or more,
  * and gives the player the correct power-ups
- * Note: Doesn't handle giving the attacking player a torpedo since if he is using a torpedo,
+ * NOTE: Doesn't handle giving the attacking player a torpedo since if he is using a torpedo,
  * then he already sunk 3/4 ships, meaning he cannot get another one.
  */
 int torpedo(Player* attacker, const Player* defender, const int pos, const int orientation)
@@ -418,24 +421,33 @@ int add_ship(const Player* p, const int x, const int y, const int ship_size, con
  */
 void remove_ship(const Player* p, int x, int y, const int ship_size, const int orientation)
 {
-    if (!p || !can_fit(p, x, y, ship_size, orientation))
+    if (!p ||
+        (orientation == 1 && (x + ship_size) - 1 >= GRID_SIZE) ||
+        (orientation == 0 && (y + ship_size) - 1 >= GRID_SIZE))
     {
         return;
     }
+
     if (orientation == 0)
     {
         for (int i = y; i < y + ship_size; i++)
         {
-            p->grid[x][i] = 0;
-            p->visible_grid[x][i] = 0;
+            if (p->grid[x][i] > 1)
+            {
+                p->grid[x][i] = 0;
+                p->visible_grid[x][i] = 0;
+            }
         }
     }
     else
     {
         for (int i = x; i < x + ship_size; i++)
         {
-            p->grid[i][y] = 0;
-            p->visible_grid[i][y] = 0;
+            if (p->grid[i][y] > 1)
+            {
+                p->grid[i][y] = 0;
+                p->visible_grid[i][y] = 0;
+            }
         }
     }
 }
@@ -443,7 +455,7 @@ void remove_ship(const Player* p, int x, int y, const int ship_size, const int o
 /*
  * Requires: nothing
  * Effects: returns 1 if all the defender's ships have 0 hp, else 0
-*/
+ */
 int is_game_over(const Player* defender)
 {
     for (int i = 0; i < NUM_SHIPS; ++i)
@@ -570,11 +582,9 @@ int is_valid_row(const char square[4])
     if (!square)
         return -1;
     return '1' <= square[1] && '9' >= square[1] &&
-    (
-        square[1] != '1' ||
+    (square[1] != '1' ||
         (square[2] == '0' ||
-            square[2] == '\0')
-    );
+            square[2] == '\0'));
 }
 
 /*
@@ -587,15 +597,10 @@ int is_valid_torpedo_row(const char square[4])
     if (!square)
         return -1;
     return '1' <= square[0] && '9' >= square[0] &&
-    (
-        square[0] != '1' ||
+    (square[0] != '1' ||
         (square[1] == '0' ||
-            square[1] == '\0')
-    );
+            square[1] == '\0'));
 }
-
-// Changed bitwise AND to logical AND, this saves time when executed
-// Once one condition is not met it short circuits instead of evaluating all other operations
 
 /*
  * Requires: nothing.
@@ -751,17 +756,23 @@ int get_orientation(const char orientation[11])
     return -1;
 }
 
-// Generates a random number
+/*
+ * Requires: range is positive
+ * Effects: returns a random integer in [0, range)
+ */
 int _rand(const int range)
 {
-    // Since we are not allowed to use any libraries we will generate
-    // a random number by allocating a random memory address in the
-    // memory using malloc, we will use the garbage value as a rand.
-
+    // Use a random memory address as seed for the pseudo random number generator
     void* temp = malloc(1);
-    int res = (((int)temp) / 7) % range;
+    int res = (((int)temp) / 7);
     free(temp);
-    return res;
+
+    // Use the seed difference to still get pseudo random behavior on consecutive calls of the function
+    int random_result = (MULTIPLIER * res + seed_diff) % range;
+
+    // increment the seed diff to get pseudo random behavior
+    seed_diff++;
+    return random_result;
 }
 
 /*
