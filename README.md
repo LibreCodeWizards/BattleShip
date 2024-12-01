@@ -120,7 +120,7 @@ After building the game, you can run it:
 
 - **Windows**:
   ```bash
-  Battleship.exe
+  .\Battleship.exe
   ```
 
 Enjoy the game! 🚀
