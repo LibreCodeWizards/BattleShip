@@ -412,6 +412,10 @@ int add_ship(const Player* p, const int x, const int y, const int ship_size, con
     return 1;
 }
 
+/*
+ * Requires: nothing
+ * Effects: removed a ship from the player grid by setting its value as 0 in the grid.
+ */
 void remove_ship(const Player* p, int x, int y, const int ship_size, const int orientation)
 {
     if (!p || !can_fit(p, x, y, ship_size, orientation))
