@@ -799,6 +799,11 @@ int _rand(const int range)
 
     // increment the seed diff to get pseudo random behavior
     seed_diff++;
+    if (random_result < 0)
+        random_result *= -1;
+    if (random_result > range)
+        random_result = random_result % range;
+
     return random_result;
 }
 
