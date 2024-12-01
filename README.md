@@ -14,6 +14,12 @@ The project is organized as follows:
 
 ---
 
+## How to Download the Game
+
+You can find the zip files for the game pre-compiled for Windwos and Linux in the package page if you don't want to compile it yourself.
+
+---
+
 ## How to Compile the Game ⚙️
 
 We use **CMake** to manage the build process and **make** as the build tool. Follow the steps below to set up your environment and compile the game.
