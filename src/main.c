@@ -5,8 +5,8 @@
 
 int main()
 {
-    Player *player[2] = {initialize_player(), initialize_player()};
-    Player *dummy = initialize_player();
+    Player* player[2] = {initialize_player(), initialize_player()};
+    Player* dummy = initialize_player();
 
     int exit = 0;
 
@@ -23,7 +23,7 @@ int main()
         break;
     }
 
-    // 0 means single player, 1 is multiplaye
+    // 0 means single player, 1 is multiplayer
     int mode;
     while (1)
     {
@@ -109,7 +109,6 @@ int main()
 
         if (mode == 0)
         {
-
             if (current_player == 0)
             {
                 printf("Human Player, it's your turn: \n");
@@ -149,10 +148,10 @@ int main()
                     continue;
                 }
 
-                // If player doesnt have artillary or torpedo and he tries to play them, make him choose again
+                // If player doesn't have artillery or torpedo, and he tries to play them, make him choose again
                 if (move_number == 3 && player[current_player]->artillery <= 0)
                 {
-                    printf("You dont have artilleries!\n");
+                    printf("You dont have artillery!\n");
                     continue;
                 }
 
@@ -194,10 +193,10 @@ int main()
         }
         else
         {
-            // TODO: get bot move
-            get_bot_move(player[current_player], player[opponent], dummy, &x, &y, &move_number, turn, latest_radar_bot_hit);
+            get_bot_move(player[current_player], player[opponent], dummy, &x, &y, &move_number, turn,
+                         latest_radar_bot_hit);
 
-            const char *move_name = MOVE_LIST[move_number];
+            const char* move_name = MOVE_LIST[move_number];
             char col = 'A' + y;
             char row = x + 1;
 
@@ -218,7 +217,7 @@ int main()
             player[current_player]->artillery = 0;
         }
 
-        // if player doesnt have radar sweep or smokescreen and he tries to play them, he loses his turn
+        // if player doesn't have radar sweep or smokescreen, and he tries to play them, he loses his turn
         if (move_number == 1 && player[current_player]->radar_sweep <= 0)
         {
             printf("You don't have a radar sweep! You have lost your turn!");

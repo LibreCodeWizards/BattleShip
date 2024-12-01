@@ -1,13 +1,12 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include "bot.h"
 #include "asst.h"
 
 /*
-Requires: nothing
-Effects: prints the heatmap of the bot (mainly used for debugging)
-*/
-void print_heatmap(double **hm)
+ * Requires: nothing
+ * Effects: prints the heatmap of the bot (mainly used for debugging)
+ */
+void print_heatmap(double** hm)
 {
     for (int i = 0; i < GRID_SIZE; ++i)
     {
@@ -27,10 +26,10 @@ void print_heatmap(double **hm)
 }
 
 /*
-Requires: nothing
-Effects: randomly places the 4 ships on the bot's board
-*/
-void bot_configure_ships(Player *bot)
+ * Requires: nothing
+ * Effects: randomly places the 4 ships on the bot's board
+ */
+void bot_configure_ships(Player* bot)
 {
     for (int ship = 2; ship <= 5; ++ship)
     {
@@ -49,15 +48,15 @@ void bot_configure_ships(Player *bot)
 }
 
 /*
-Requires: nothing
-Effects: gives modified values representing how good the configuration of ships is
-*/
+ * Requires: nothing
+ * Effects: gives modified values representing how good the configuration of ships is
+ */
 double activation(double x, double y)
 {
     return ((x + 1) / (y + 1)) + (1 / (y - x + 1));
 }
 
-void mark_radar_miss(Player *dummy, const int x, const int y)
+void mark_radar_miss(Player* dummy, const int x, const int y)
 {
     for (int i = x; i < min(x + 2, GRID_SIZE); ++i)
     {
@@ -69,10 +68,10 @@ void mark_radar_miss(Player *dummy, const int x, const int y)
 }
 
 /*
-Requires: nothing
-Effects: creates a probablity heatmap of squares that are most likely to have ships
-*/
-double **get_heat_map(Player *opponent, Player *dummy)
+ * Requires: nothing
+ * Effects: creates a probability heatmap of squares that are most likely to have ships
+ */
+double** get_heat_map(Player* opponent, Player* dummy)
 {
     // PLEASE DO NOT TRY TO REFORMAT THIS CODE
 
@@ -86,7 +85,7 @@ double **get_heat_map(Player *opponent, Player *dummy)
         }
     }
 
-    double **hm = initialize_double_grid();
+    double** hm = initialize_double_grid();
     // loop over opponent ship healths, if not 0, make corresponding index its size
     int ships[] = {-1, -1, -1, -1};
     for (int i = 0; i < NUM_SHIPS; ++i)
@@ -171,7 +170,8 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                 {
                                     if (ships[2] == -1)
                                     {
-                                        int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1);
+                                        int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(
+                                            dummy, i1, j1, ships[1], dir1);
                                         if (result == 2)
                                         {
                                             int covered_hits = 0;
@@ -262,7 +262,9 @@ double **get_heat_map(Player *opponent, Player *dummy)
                                             {
                                                 for (int dir2 = 0; dir2 < 2; ++dir2)
                                                 {
-                                                    int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(dummy, i1, j1, ships[1], dir1) + add_ship(dummy, i2, j2, ships[2], dir2);
+                                                    int result = add_ship(dummy, i0, j0, ships[0], dir0) + add_ship(
+                                                        dummy, i1, j1, ships[1], dir1) + add_ship(
+                                                        dummy, i2, j2, ships[2], dir2);
                                                     if (result == 3)
                                                     {
                                                         int covered_hits = 0;
@@ -563,7 +565,7 @@ double **get_heat_map(Player *opponent, Player *dummy)
         }
     }
 
-    // Dont allow bot to choose cell that has already been hit
+    // Don't allow bot to choose cell that has already been hit
     for (int i = 0; i < GRID_SIZE; ++i)
     {
         for (int j = 0; j < GRID_SIZE; ++j)
@@ -581,9 +583,10 @@ double **get_heat_map(Player *opponent, Player *dummy)
 Requires: latest_bot_radar_hit be an integer array of size 2
 Effects: stores the bot's intended move in move_number, and its coordinates in x and y
 */
-void get_bot_move(Player *bot, Player *opponent, Player *dummy, int *x, int *y, int *move_number, int turn, int *latest_bot_radar_hit)
+void get_bot_move(Player* bot, Player* opponent, Player* dummy, int* x, int* y, int* move_number, int turn,
+                  int* latest_bot_radar_hit)
 {
-    double **hm = get_heat_map(opponent, dummy); // heatmap
+    double** hm = get_heat_map(opponent, dummy); // heatmap
     print_heatmap(hm);
     int bot_has_all_ships = 1;
     for (int i = 0; i < 4; ++i)
@@ -653,11 +656,11 @@ void get_bot_move(Player *bot, Player *opponent, Player *dummy, int *x, int *y, 
                     bestY = j;
                 }
             }
-        // [bestX,bestY] is the best 2x2 subsquare to sweep
+        // [bestX,bestY] is the best 2x2 sub-square to sweep
         *x = bestX;
         *y = bestY;
 
-        // If we have artillary, choose it over radar sweep
+        // If we have artillery, choose it over radar sweep
         *move_number = 3;
         return;
     }
@@ -704,6 +707,4 @@ void get_bot_move(Player *bot, Player *opponent, Player *dummy, int *x, int *y, 
 
         return;
     }
-
-    return;
 }

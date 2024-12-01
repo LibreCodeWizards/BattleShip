@@ -6,28 +6,29 @@
 #include <stdio.h>
 #include "asst.h"
 
-#define MULTIPLIER 48271
-int seed_diff = 0;
+const char* ORIENTATION[2] =
+{
+    "vertical",
+    "horizontal"
+};
 
-const char *ORIENTATION[2] =
-    {
-        "vertical",
-        "horizontal"};
+const char* SHIP_NAMES[4] =
+{
+    "Submarine",
+    "Destroyer",
+    "Battleship",
+    "Carrier"
+};
 
-const char *SHIP_NAMES[4] =
-    {
-        "Submarine",
-        "Destroyer",
-        "Battleship",
-        "Carrier"};
+const char* MOVE_LIST[5] =
+{
+    "Fire",
+    "Radar",
+    "Smoke",
+    "Artillery",
+    "Torpedo"
+};
 
-const char *MOVE_LIST[5] =
-    {
-        "Fire",
-        "Radar",
-        "Smoke",
-        "Artillery",
-        "Torpedo"};
 /*
  * Requires: Nothing
  * Effects: Clears the screen for the next round
@@ -41,7 +42,7 @@ void clear_screen()
  * Requires: Nothing
  * Effects: Prints the player grid
  */
-void print_configuration(const Player *p)
+void print_configuration(const Player* p)
 {
     if (!p)
         return;
@@ -72,7 +73,7 @@ void print_configuration(const Player *p)
  *          if the difficulty is set to 0 (easy) the hit squares are displayed as 'o', otherwise
  *          they are displayed as '~'.
  */
-void print_grid(Player *attacker, const Player *defender, const int difficulty)
+void print_grid(Player* attacker, const Player* defender, const int difficulty)
 {
     if (!defender)
         return;
@@ -124,9 +125,9 @@ void print_grid(Player *attacker, const Player *defender, const int difficulty)
 
 /*
  * Requires: str should end with '\0' if it has more than 0 character
- * Effects: Returns the length of the string without the '\0.
+ * Effects: Returns the length of the string without the '\0'.
  */
-int _strlen(const char *str)
+int _strlen(const char* str)
 {
     if (!str)
         return -1;
@@ -144,9 +145,9 @@ int _strlen(const char *str)
 /*
  * Requires: nothing
  * Effects: Gives the player a torpedo if he sunk a ship and the ship was the third one he sunk and returns 1, else
- *          resets the player's torpedos to 0 and returns 0
+ *          resets the player's torpedoes to 0 and returns 0
  */
-int update_torpedo(Player *attacker, const Player *defender, const int is_sunk)
+int update_torpedo(Player* attacker, const Player* defender, const int is_sunk)
 {
     attacker->torpedo = 0;
 
@@ -173,7 +174,7 @@ int update_torpedo(Player *attacker, const Player *defender, const int is_sunk)
  * Requires: Nothing
  * Effects: Returns an integer as boolean by checking if the ship health is 0 (it is sunk returns 1) or not (returns 0).
  */
-int is_sunk(const Player *defender, const int ship_number)
+int is_sunk(const Player* defender, const int ship_number)
 {
     // Thing hit is not a ship
     if (ship_number < 0)
@@ -187,13 +188,13 @@ int is_sunk(const Player *defender, const int ship_number)
 }
 
 /*
-Requires: x and y be within the bounds of the grid
-Effects: decrements the hp of the hit ship in the defender, updates the grid to mark the hit or the miss, gives the attack smokescreen and artillary if the ship is sunk, and prints if the ship is sunk
-Returns the number found at grid[x][y] before it was updated
-
-This function does a lot of things because it is used as the main helper function in all other functions
-*/
-int fire(Player *attacker, const Player *defender, const int x, const int y)
+ * Requires: x and y be within the bounds of the grid
+ * Effects: decrements the hp of the hit ship in the defender, updates the grid to mark the hit or the miss,
+ * gives the attack smokescreen and artillery if the ship is sunk, and prints if the ship is sunk
+ * Returns the number found at grid[x][y] before it was updated
+ * This function does a lot of things because it is used as the main helper function in all other functions
+ */
+int fire(Player* attacker, const Player* defender, const int x, const int y)
 {
     // Checks if a grid at this index contains a ship
     // Decrements the ship HP
@@ -230,10 +231,12 @@ int fire(Player *attacker, const Player *defender, const int x, const int y)
 }
 
 /*
-Requires: x and y be within the bounds of the grid
-Effects: Fires at the 2x2 area starting at xy and updates the grid to mark hits or misses and gives the attacker the correct powerups. Prints the sunk ships if there is one or more.
-*/
-int artillery(Player *attacker, const Player *defender, const int x, const int y)
+ * Requires: x and y be within the bounds of the grid
+ * Effects: Fires at the 2x2 area starting at xy and updates
+ * the grid to mark hits or misses and gives the attacker the correct power-ups.
+ * Prints the sunk ships if there is one or more.
+ */
+int artillery(Player* attacker, const Player* defender, const int x, const int y)
 {
     // Maintain booleans to ensure that player gets his abilities if any ship is sunk
     int got_artillery = 0;
@@ -266,12 +269,13 @@ int artillery(Player *attacker, const Player *defender, const int x, const int y
 }
 
 /*
-Requires: Pos be within the range of the grid, orientation be 0 (horizontal) or 1 (vertical)
-Effects: Fires at the specified row or column, prints the sunk ships if there are 1 or more, and gives the player the correct powerups
-
-Note: Doesn't handle giving the attacking player a torpedo since if he is using a torpedo, then he already sunk 3/4 ships, meaning he cannot get another one.
-*/
-int torpedo(Player *attacker, const Player *defender, const int pos, const int orientation)
+ * Requires: Pos be within the range of the grid, orientation be 0 (horizontal) or 1 (vertical).
+ * Effects: Fires at the specified row or column, prints the sunk ships if there are 1 or more,
+ * and gives the player the correct power-ups
+ * Note: Doesn't handle giving the attacking player a torpedo since if he is using a torpedo,
+ * then he already sunk 3/4 ships, meaning he cannot get another one.
+ */
+int torpedo(Player* attacker, const Player* defender, const int pos, const int orientation)
 {
     // orientation 0 for row, 1 for col
 
@@ -300,10 +304,12 @@ int torpedo(Player *attacker, const Player *defender, const int pos, const int o
 }
 
 /*
-Requires: x and y be within the bounds of the grid
-Effects: returns 1 if there are any enemy ships within the 2x2 area of the opponent's visible grid (the one that has the radar sweeps applied) starting from xy, else 0
-*/
-int radar_sweep(const Player *defender, const int x, const int y)
+ * Requires: x and y be within the bounds of the grid
+ * Effects: returns 1 if there are any enemy ships within
+ * the 2x2 area of the opponent's visible grid
+ * (the one that has the radar sweeps applied) starting from xy, else 0
+ */
+int radar_sweep(const Player* defender, const int x, const int y)
 {
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
@@ -320,10 +326,11 @@ int radar_sweep(const Player *defender, const int x, const int y)
 }
 
 /*
-Requires: x and y be within the bounds of the grid
-Effects: updates the player's visible grid to make the 2x2 area starting at xy invisible (0) to enemy radar sweeps
+ * Requires: x and y be within the bounds of the grid
+ * Effects: updates the player's visible grid to make the 2x2 area starting at
+ * xy invisible (0) to enemy radar sweeps
  */
-void smoke_screen(const Player *p, const int x, const int y)
+void smoke_screen(const Player* p, const int x, const int y)
 {
     for (int i = x; i < min(GRID_SIZE, x + 2); ++i)
     {
@@ -335,14 +342,15 @@ void smoke_screen(const Player *p, const int x, const int y)
 }
 
 /*
-Requires: Orientation is 0 (horizontal) or 1 (vertical)
-Effects: returns 1 if ships can fit at grid[x][y] without going out of bounds or colliding with another ship, else 0
+ * Requires: Orientation is 0 (horizontal) or 1 (vertical)
+ * Effects: returns 1 if ships can fit at grid[x][y] without going out of bounds or
+ * colliding with another ship, else 0
  */
-int can_fit(const Player *p, const int x, const int y, const int ship_size, const int orientation)
+int can_fit(const Player* p, const int x, const int y, const int ship_size, const int orientation)
 {
     // Make sure ships fit in this orientation (0 for horizontal, 1 for vertical)
     if ((orientation == 1 && (x + ship_size) - 1 >= GRID_SIZE) || (orientation == 0 && (y + ship_size) - 1 >=
-                                                                                           GRID_SIZE))
+        GRID_SIZE))
         return 0;
 
     // Make sure the ship can fit in this orientation and doesn't overlap with another
@@ -369,10 +377,11 @@ int can_fit(const Player *p, const int x, const int y, const int ship_size, cons
 }
 
 /*
-Requires: Orientation is 0 (horizontal) or 1 (vertical)
-Effects: Marks the place of the ship with its corresponding number in the player's grid and with 1 in the player's visible grid and returns 1 if the ship can fit, else returns 0
+ * Requires: Orientation is 0 (horizontal) or 1 (vertical)
+ * Effects: Marks the place of the ship with its corresponding number in the player's grid and
+ * with 1 in the player's visible grid and returns 1 if the ship can fit, else returns 0
  */
-int add_ship(const Player *p, const int x, const int y, const int ship_size, const int orientation)
+int add_ship(const Player* p, const int x, const int y, const int ship_size, const int orientation)
 {
     if (!can_fit(p, x, y, ship_size, orientation))
         return 0;
@@ -403,42 +412,35 @@ int add_ship(const Player *p, const int x, const int y, const int ship_size, con
     return 1;
 }
 
-void remove_ship(const Player *p, int x, int y, const int ship_size, const int orientation)
+void remove_ship(const Player* p, int x, int y, const int ship_size, const int orientation)
 {
-    if (!p || p == NULL || (orientation == 1 && (x + ship_size) - 1 >= GRID_SIZE) || (orientation == 0 && (y + ship_size) - 1 >= GRID_SIZE))
+    if (!p || !can_fit(p, x, y, ship_size, orientation))
     {
         return;
     }
-
     if (orientation == 0)
     {
         for (int i = y; i < y + ship_size; i++)
         {
-            if (p->grid[x][i] > 1)
-            {
-                p->grid[x][i] = 0;
-                p->visible_grid[x][i] = 0;
-            }
+            p->grid[x][i] = 0;
+            p->visible_grid[x][i] = 0;
         }
     }
     else
     {
         for (int i = x; i < x + ship_size; i++)
         {
-            if (p->grid[i][y] > 1)
-            {
-                p->grid[i][y] = 0;
-                p->visible_grid[i][y] = 0;
-            }
+            p->grid[i][y] = 0;
+            p->visible_grid[i][y] = 0;
         }
     }
 }
 
 /*
-Requires: nothing
-Effects: returns 1 if all the defender's ships have 0 hp, else 0
+ * Requires: nothing
+ * Effects: returns 1 if all the defender's ships have 0 hp, else 0
 */
-int is_game_over(const Player *defender)
+int is_game_over(const Player* defender)
 {
     for (int i = 0; i < NUM_SHIPS; ++i)
     {
@@ -452,48 +454,52 @@ int is_game_over(const Player *defender)
 }
 
 /*
-Requires: nothing
-Effects: Creates a GRID_SIZExGRIZ_SIZE grid of integers on the heap and returns a pointer to it
-*/
-int **initialize_grid()
+ * Requires: nothing
+ * Effects: Creates a GRID_SIZExGRIZ_SIZE grid on the heap and returns a pointer to it.
+ * NOTE: This grid is to be used as a player ship grid
+ */
+int** initialize_grid()
 {
     // First dimension have 10 pointers.
-    int **grid = (int **)calloc(GRID_SIZE, sizeof(int *));
+    int** grid = (int**)calloc(GRID_SIZE, sizeof(int*));
 
     for (int i = 0; i < GRID_SIZE; ++i)
     {
         // Second dimension have 10 elements.
-        grid[i] = (int *)calloc(GRID_SIZE, sizeof(int));
+        grid[i] = (int*)calloc(GRID_SIZE, sizeof(int));
     }
 
     return grid;
 }
 
 /*
-Requires: nothing
-Effects: creates a GRID_SIZExGRID_SIZE grid of doubles on the heap and returns the pointer to it
-*/
-double **initialize_double_grid()
+ * Requires: nothing
+ * Effects: Creates a GRID_SIZExGRIZ_SIZE grid on the heap and returns a pointer to it.
+ * NOTE: This grid is to be used with heatmap in the bot.
+ */
+double** initialize_double_grid()
 {
-    double **grid = (double **)malloc(GRID_SIZE * sizeof(double *));
+    double** grid = (double**)malloc(GRID_SIZE * sizeof(double*));
     for (int i = 0; i < GRID_SIZE; i++)
     {
-        grid[i] = (double *)malloc(GRID_SIZE * sizeof(double));
+        grid[i] = (double*)malloc(GRID_SIZE * sizeof(double));
     }
 
     return grid;
 }
 
 /*
-Requires: nothing
-Effects: creates a player pointer on the heap and initializes the ship's hp array with the corresponding ship size, initializes both normal and visible grid, gives starting powerups, and returns the player pointer
-*/
-Player *initialize_player()
+ * Requires: nothing
+ * Effects: creates a player pointer on the heap and initializes the ship's hp array with the
+ * corresponding ship size, initializes both normal and visible grid, gives starting power-ups,
+ * and returns the player pointer
+ */
+Player* initialize_player()
 {
-    Player *p = (Player *)malloc(sizeof(Player));
+    Player* p = (Player*)malloc(sizeof(Player));
 
     // Setting HP for each ship
-    p->ships = (int *)calloc(NUM_SHIPS, sizeof(int));
+    p->ships = (int*)calloc(NUM_SHIPS, sizeof(int));
     for (int i = 0; i < NUM_SHIPS; ++i)
     {
         p->ships[i] = i + 2;
@@ -512,36 +518,37 @@ Player *initialize_player()
 }
 
 /*
-Requires: nothing
-Effects: returns the column as an integer ('A' - square)
-*/
+ * Requires: nothing
+ * Effects: returns the column as an integer ('A' - square).
+ */
 int get_column(const char square[4])
 {
     return square[0] - 'A';
 }
 
 /*
-Requires: nothing
-Effects: returns the column as an integer
-*/
+ * Requires: nothing
+ * Effects: returns the row as an integer.
+ */
 int get_row(const char square[4])
 {
     return square[1] != '1' ? square[1] - '1' : (square[2] == '0' ? 9 : 0);
 }
 
 /*
-Requires: square contains a valid torpedo coordinate (passed through is_valid_torped_row)
-Effects: returns the torpedo row as an integer
-*/
+ * Requires: square to be a string input for a torpedo (The numbers are in index 0 and 1)
+ * Effects: returns the row as an integer.
+ */
 int get_torpedo_row(const char square[4])
 {
     return square[0] != '1' ? square[0] - '1' : (square[1] == '0' ? 9 : 0);
 }
 
 /*
-Requires: nothing
-Effects: returns true if the column of the square entered is valid and within bounds, else false
-*/
+ * Requires: nothing
+ * Effects: returns a boolean showing if the square is out of bounds
+ * column wise.
+ */
 int is_valid_column(const char square[4])
 {
     if (!square)
@@ -550,46 +557,62 @@ int is_valid_column(const char square[4])
 }
 
 /*
-Requires: nothing
-Effects: returns true if the row of the square entered is valid and within bounds, else false
-*/
+ * Requires: nothing
+ * Effects: returns a boolean showing if the square is out of bounds
+ * row wise.
+ */
 int is_valid_row(const char square[4])
 {
     if (!square)
         return -1;
     return '1' <= square[1] && '9' >= square[1] &&
-           (square[1] != '1' ||
-            (square[2] == '0' ||
-             square[2] == '\0'));
+    (
+        square[1] != '1' ||
+        (square[2] == '0' ||
+            square[2] == '\0')
+    );
 }
 
 /*
-Requires: nothing
-Effects: returns true if the row of the square entered is valid and within bounds, else false
-*/
+ * Requires: square to be a string input for a torpedo (The numbers are in index 0 and 1)
+ * Effects: returns a boolean showing if the square is out of bounds
+ * row wise.
+ */
 int is_valid_torpedo_row(const char square[4])
 {
     if (!square)
         return -1;
     return '1' <= square[0] && '9' >= square[0] &&
-           (square[0] != '1' ||
-            (square[1] == '0' ||
-             square[1] == '\0'));
+    (
+        square[0] != '1' ||
+        (square[1] == '0' ||
+            square[1] == '\0')
+    );
 }
 
+// Changed bitwise AND to logical AND, this saves time when executed
+// Once one condition is not met it short circuits instead of evaluating all other operations
+
 /*
-Requires: nothing
-Effects: returns true if the square has a valid row and column, else false
-*/
+ * Requires: nothing.
+ * Effects: returns a boolean to check if the square input is valid,
+ * in both orientations.
+ */
 int is_valid_square_input(const char square[4])
 {
     return is_valid_row(square) && is_valid_column(square);
 }
 
 /*
-Requires: nothing
-Effects: returns the number of the move if move contains a valid move (as defined by MOVE_LIST), else -1
-*/
+ * Requires: nothing.
+ * Effects: returns an integer indicating the move.
+ *  0: Fire
+ *  1: Radar
+ *  2: Smoke Screen
+ *  3: Artillery
+ *  4: Torpedo
+ * -1: Wrong move
+ */
 int get_move(const char move[10])
 {
     if (!move)
@@ -680,9 +703,12 @@ int get_move(const char move[10])
 }
 
 /*
-Requires: nothing
-Effects: returns the number of the orientation if orientation contains a valid orientation (as defined in ORIENTATION), else -1
-*/
+ * Requires: nothing.
+ * Effects: returns an integer indicating the orientation.
+ *  1: Vertical
+ *  0: Horizontal
+ * -1: Invalid orientation
+ */
 int get_orientation(const char orientation[11])
 {
     if (orientation == NULL)
@@ -721,30 +747,24 @@ int get_orientation(const char orientation[11])
     return -1;
 }
 
-/*
-Requires: range is positive
-Effects: returns a random integer in [0, range)
-*/
+// Generates a random number
 int _rand(const int range)
 {
-    // Use a random memory address as seed for the psuedo random number generator
-    void *temp = malloc(1);
-    int res = (((int)temp) / 7);
+    // Since we are not allowed to use any libraries we will generate
+    // a random number by allocating a random memory address in the
+    // memory using malloc, we will use the garbage value as a rand.
+
+    void* temp = malloc(1);
+    int res = (((int)temp) / 7) % range;
     free(temp);
-
-    // Use the seed difference to still get psuedo random behavior on consecutive calls of the function
-    int random_result = (MULTIPLIER * res + seed_diff) % range;
-
-    // increment the seed diff to get psuedo random behavior
-    seed_diff++;
-    return random_result;
+    return res;
 }
 
 /*
-Requires: nothing
-Effects: prints the number of availabe moves for each move of the player
-*/
-void print_available_moves(const Player *p)
+ * Requires: nothing.
+ * Effects: prints the available moves for the player.
+ */
+void print_available_moves(const Player* p)
 {
     printf("Available moves:\n");
     printf("Fire: ∞\n");
