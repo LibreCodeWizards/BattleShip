@@ -53,7 +53,11 @@ void bot_configure_ships(Player* bot)
  */
 double activation(double x, double y)
 {
-    return ((x + 1) / (y + 1)) + (1 / (y - x + 1));
+    if ((y - x + 1) > 0)
+        return ((x + 1) / (y + 1)) + (1 / (y - x + 1));
+    if ((x - y + 1) > 0)
+        return ((x + 1) / (y + 1)) + (1 / (x - y + 1));
+    return ((x + 1) / (y + 1));
 }
 
 void mark_radar_miss(Player* dummy, const int x, const int y)
